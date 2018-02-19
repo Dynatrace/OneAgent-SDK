@@ -107,7 +107,7 @@ try {
 }
 ```
 
-## Using the Dynatrace OneAgent to trace database requests
+## Using the Dynatrace OneAgent SDK to trace database requests
 
 You can use the SDK to trace database requests that Dynatrace doesn't detect automatically. This will not only enable you to see single SQL statements within the traced requests, it will also extend SmartScape to include the traced database in the topology. This in turn will extend the reach of the Dynatrace AI, because it will baseline the behaviour of every single reported SQL statement and alert you on errors or slowdowns down to the single SQL statement.
 
