@@ -1,4 +1,4 @@
-**Disclaimer: This repository is currently in early access and still work in progress.**
+**Disclaimer: This repository is currently in beta and still work in progress.**
 
 # How to use this repository
 
@@ -8,7 +8,7 @@ This repository therefore can be considered a language independent documentation
 
 # Dynatrace OneAgent SDK
 
-The Dynatrace OneAgent SDK can be used to add custom instrumentation for proprietary frameworks or programming languages that are not supported out-of-the-box by Dynatrace. The primary purpose of this SDK is to facilitate end-to-end tracing of transactions. 
+The Dynatrace OneAgent SDK can be used to add custom instrumentation for proprietary frameworks or programming languages that are not supported out-of-the-box by Dynatrace. The primary purpose of this SDK is to facilitate end-to-end tracing of transactions.
 While other tracing frameworks are rather generic, the Dynatrace OneAgent SDK has more semantics to explicitly model remote calls, database requests, web requests, message passing, in-process context passing and more.
 
 In order to use the Dynatrace OneAgent SDK you need to have access to the source code of the application in question. In languages like Java and Node.js you might have other possibilities to use the SDK even if you do not want or cannot modify the original code (aspects and monkey patching). For most languages the SDK does not contain much actual implementation as the real work is done by the Dynatrace OneAgent itself. The SDK just acts as an API to the OneAgent.
@@ -62,7 +62,7 @@ The second purpose of a Tracer is to allow tracing across process boundaries. To
 
 Dynatrace supports the idea that the same service is deployed in different environments or just multiple times with different configs. One such logical deployment is usually identified some sort of endpoint string, most of times an URL. Therefore you can have the same service (same name) with multiple service endpoints (deployed instances of the service).
 
-Additionally you can supply the actual communication endpoint. This might sound strange until you think about clustered and highly available servies. In such a case the same logic endpoint might have multiple communication endpoints. These might even change over time. The communication endpoint allows Dynatrace to understand which process, device or cloud service will receive the request. Thus even if you cannot install a OneAgent on that receiving end, the Dynatrace AI can reason about its impact on your system. 
+Additionally you can supply the actual communication endpoint. This might sound strange until you think about clustered and highly available servies. In such a case the same logic endpoint might have multiple communication endpoints. These might even change over time. The communication endpoint allows Dynatrace to understand which process, device or cloud service will receive the request. Thus even if you cannot install a OneAgent on that receiving end, the Dynatrace AI can reason about its impact on your system.
 
 Imagine making a call to a cloud based clustered service. You can trace this call with the SDK, but you cannot install a OneAgent on that cloud based service. Due to the distinction of service endpoint and communication endpoint Dynatrace will understand that you are making calls to this service, it will understand that there are multiple instances, and if one of those starts to fail, the Dynatrace AI will be able to tell you about this and the impact this has.
 
@@ -111,7 +111,7 @@ try {
 
 You can use the SDK to trace database requests that Dynatrace doesn't detect automatically. This will not only enable you to see single SQL statements within the traced requests, it will also extend SmartScape to include the traced database in the topology. This in turn will extend the reach of the Dynatrace AI, because it will baseline the behaviour of every single reported SQL statement and alert you on errors or slowdowns down to the single SQL statement.
 
-To trace any kind of database request you first need to create a DatabaseInfo object. The info object represents the database itself. 
+To trace any kind of database request you first need to create a DatabaseInfo object. The info object represents the database itself.
 
 ```Java
 DatabaseInfo databaseInfo = OneAgentSDK.createDatabaseInfo("myDB", DatabaseVendor.PROGRESS, ChannelType.TCP_IP, "dbHost:1234");
