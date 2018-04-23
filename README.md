@@ -162,3 +162,10 @@ try {
 	tracer.end();
 }
 ```
+
+# Further reading
+
+* <a href="https://answers.dynatrace.com/spaces/483/dynatrace-product-ideas/idea/198106/planned-features-for-oneagent-sdk.html" target="_blank">Feedback & Roadmap thread in AnswerHub</a>
+* <a href="https://www.dynatrace.com/news/blog/dynatrace-oneagent-sdk-for-java-end-to-end-monitoring-for-proprietary-java-frameworks/" target="_blank">Blog: Dynatrace OneAgent SDK for Java: End-to-end monitoring for proprietary Java frameworks</a>
+* <a href="https://www.dynatrace.com/news/blog/dynatrace-oneagent-sdk-c-service-transaction-monitoring-c-native-applications/" target="_blank">Blog: Dynatrace OneAgent SDK for C: Service and transaction monitoring for C++ and other native applications</a>
+* <a href="https://www.dynatrace.com/news/blog/dynatrace-oneagent-sdk-for-node-js-extend-end-to-end-visibility/" target="_blank">Blog: Dynatrace OneAgent SDK for Node.js: Extend end-to-end visibility</a>
