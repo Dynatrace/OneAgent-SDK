@@ -38,6 +38,7 @@ In order to use the Dynatrace OneAgent SDK you need to have access to the source
 * [OneAgent SDK for C/C++](https://github.com/Dynatrace/OneAgent-SDK-for-C)
 
 <a name="apiconcepts"/>
+
 # API Concepts
 
 <a name="oneagentsdkobject"/>
