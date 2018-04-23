@@ -1,4 +1,4 @@
-**Disclaimer: This repository is currently in beta and still work in progress.**
+**Disclaimer: This Dynatrace OneAgent SDK is currently in beta and still work in progress.**
 
 # How to use this repository
 
