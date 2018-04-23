@@ -8,6 +8,7 @@ This repository therefore can be considered a language independent documentation
 #### Table of Contents
 
 * [Dynatrace OneAgent SDK](#oneagentsdk)  
+	* [Requirements](#requirements)
 * [Language specific SDKs](#languagesdks)
 * [API Concepts](#apiconcepts)
 	* [OneAgentSDK object](#oneagentsdkobject)
@@ -28,6 +29,14 @@ The Dynatrace OneAgent SDK can be used to add custom instrumentation for proprie
 While other tracing frameworks are rather generic, the Dynatrace OneAgent SDK has more semantics to explicitly model remote calls, database requests, web requests, message passing, in-process context passing and more.
 
 In order to use the Dynatrace OneAgent SDK you need to have access to the source code of the application in question. In languages like Java and Node.js you might have other possibilities to use the SDK even if you do not want or cannot modify the original code (aspects and monkey patching). For most languages the SDK does not contain much actual implementation as the real work is done by the Dynatrace OneAgent itself. The SDK just acts as an API to the OneAgent.
+
+<a name="requirements"/>
+
+## Requirements
+
+* Dynatrace OneAgent v1.33 or higher installed on the host running the application/service to be monitored
+* Ability to edit the source code of the application/service to be monitored
+* OneAgent automatically detects that your application is instrumented with the OneAgent SDK and immediately begins monitoring it. A restart of the application is required following OneAgent installation on the host.
 
 <a name="languagesdks"/>
 
