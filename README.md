@@ -35,6 +35,8 @@ OneAgent automatically detects that your application is instrumented with the On
 
 # Language specific SDKs
 
+The language specific SDKs are open source and published directly to GitHub, together with technical documentation and sample codes.
+
 * [OneAgent SDK for Node.js](https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs)
 * [OneAgent SDK for Java](https://github.com/Dynatrace/OneAgent-SDK-for-Java)
 * [OneAgent SDK for C/C++](https://github.com/Dynatrace/OneAgent-SDK-for-C)
@@ -86,7 +88,7 @@ The second purpose of a Tracer is to allow tracing across process boundaries. To
 
 <a name="endpoints"/>
 
-## Common concepts: service endpoints and communication endpoints
+## Service endpoints and communication endpoints
 
 Dynatrace supports the idea that the same service is deployed in different environments or just multiple times with different configs. One such logical deployment is usually identified some sort of endpoint string, most of times an URL. Therefore you can have the same service (same name) with multiple service endpoints (deployed instances of the service).
 
@@ -96,9 +98,13 @@ Imagine making a call to a cloud based clustered service. You can trace this cal
 
 If you can trace the call end-to-end though, the extra information about the communication endpoint will enable Dynatrace to understand the extra hops in between due to load balancers and proxies, which its AI can use again to better determine the root cause of any issue.
 
+See also: <a href="https://www.dynatrace.com/support/help/server-side-services/introduction/how-does-dynatrace-detect-and-name-services/" target="_blank">How does Dynatrace detect and name services?</a> in the product documentation.
+
 <a name="features"/>
 
 # Features
+
+The feature sets differ slightly with each language implementation. More functionality will be added over time, see <a href="https://answers.dynatrace.com/spaces/483/dynatrace-product-ideas/idea/198106/planned-features-for-oneagent-sdk.html" target="_blank">Planned features for OneAgent SDK</a> for details on upcoming features.
 
 <a name="remoting"/>
 
@@ -200,6 +206,10 @@ try {
 ```
 
 <a name="furtherreading"/>
+
+# Support
+
+The Dynatrace OneAgent SDK is an open source project, in beta status. Feedback and feature requests can be filed directly on GitHub or on the <a href="https://answers.dynatrace.com/spaces/483/dynatrace-product-ideas/idea/198106/planned-features-for-oneagent-sdk.html" target="_blank">Feedback & Roadmap thread in AnswerHub</a>.
 
 # Further reading
 
