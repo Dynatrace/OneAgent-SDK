@@ -1,5 +1,3 @@
-**Disclaimer: This Dynatrace OneAgent SDK is currently in beta and still work in progress.**
-
 # How to use this repository
 
 This repository contains the specification of the Dynatrace OneAgent SDK. All interfaces are specified in Java as the language of choice. These interfaces are translated and implemented in different languages. We try to stay as close to the specification as possible, while still ensuring that language specific concepts are used where this makes the interface more usable.
