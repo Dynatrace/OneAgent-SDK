@@ -6,6 +6,22 @@ This repository contains the specification of the Dynatrace OneAgent SDK. All in
 
 This repository therefore can be considered a language independent documentation of the SDK's APIs and concepts.
 
+
+#### Table of Contents
+
+* [Dynatrace OneAgent SDK](#oneagentsdk)  
+* [Language specific SDKs](#languagesdks)
+* [API Concepts](#apiconcepts)
+	* [OneAgentSDK object](#oneagentsdkobject)
+	* [Tracers](#tracers)
+	* [Service endpoints and communication endpoints](#endpoints)
+* [Features](#features)
+ 	* [Trace incoming and outgoing remote calls](#remoting)
+ 	* [Trace database requests](#database)
+ 	* [Trace incoming web requests](#webrequests)
+* [Further reading](#furtherreading)
+
+
 # Dynatrace OneAgent SDK
 
 The Dynatrace OneAgent SDK can be used to add custom instrumentation for proprietary frameworks or programming languages that are not supported out-of-the-box by Dynatrace. The primary purpose of this SDK is to facilitate end-to-end tracing of transactions.
