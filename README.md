@@ -21,6 +21,7 @@ This repository therefore can be considered a language independent documentation
 
 
 <a name="oneagentsdk"/>
+
 # Dynatrace OneAgent SDK
 
 The Dynatrace OneAgent SDK can be used to add custom instrumentation for proprietary frameworks or programming languages that are not supported out-of-the-box by Dynatrace. The primary purpose of this SDK is to facilitate end-to-end tracing of transactions.
@@ -29,6 +30,7 @@ While other tracing frameworks are rather generic, the Dynatrace OneAgent SDK ha
 In order to use the Dynatrace OneAgent SDK you need to have access to the source code of the application in question. In languages like Java and Node.js you might have other possibilities to use the SDK even if you do not want or cannot modify the original code (aspects and monkey patching). For most languages the SDK does not contain much actual implementation as the real work is done by the Dynatrace OneAgent itself. The SDK just acts as an API to the OneAgent.
 
 <a name="languagesdks"/>
+
 # Language specific SDKs
 
 * [OneAgent SDK for Node.js](https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs)
@@ -39,6 +41,7 @@ In order to use the Dynatrace OneAgent SDK you need to have access to the source
 # API Concepts
 
 <a name="oneagentsdkobject"/>
+
 ## OneAgentSDK object
 
 All interactions with the OneAgentSDK are done via a central interface. You can create an instance of this interface via a Factory.
@@ -50,6 +53,7 @@ OneAgentSDK OneAgentSDK = OneAgentSDKFactory.createInstance();
 You can create more than one object of this in your application. This ensures that you do not need to coordinate a singleton behavior across the whole applications and that different frameworks can use the SDK independently from each other. The OneAgentSDK object enables you to create Tracers for different aspects of your application.
 
 <a name="tracers"/>
+
 ## Tracers
 
 To trace any kind of call you first need to create a Tracer. The Tracer object represents the logical and physical endpoint that you want to call. A Tracer serves two purposes. On the one hand to time the call (duration, CPU time and more) and on the other to report errors. That is why each Tracer has these three methods. The error method must be called only once, and it must be in between start and end. Actually it is not allowed to call start, end or error on the same Tracer instance from different threads.
@@ -78,6 +82,7 @@ try {
 The second purpose of a Tracer is to allow tracing across process boundaries. To achieve that these kind of traces supply so-called tags. Tags are strings or byte arrays that enable Dynatrace to trace a transaction end-to-end. As such the tag is the one information that you need to transport across these calls yourselfs.
 
 <a name="endpoints"/>
+
 ## Common concepts: service endpoints and communication endpoints
 
 Dynatrace supports the idea that the same service is deployed in different environments or just multiple times with different configs. One such logical deployment is usually identified some sort of endpoint string, most of times an URL. Therefore you can have the same service (same name) with multiple service endpoints (deployed instances of the service).
@@ -89,9 +94,11 @@ Imagine making a call to a cloud based clustered service. You can trace this cal
 If you can trace the call end-to-end though, the extra information about the communication endpoint will enable Dynatrace to understand the extra hops in between due to load balancers and proxies, which its AI can use again to better determine the root cause of any issue.
 
 <a name="features"/>
+
 # Features
 
 <a name="remoting"/>
+
 ## Trace incoming and outgoing remote calls
 
 You can use the SDK to trace proprietary IPC communication from one process to the other. This will enable you to see full Service Flow, PurePath and Smartscape topology for remoting technologies that Dynatrace is not aware of.
@@ -132,6 +139,7 @@ try {
 ```
 
 <a name="database"/>
+
 ## Trace database requests
 
 You can use the SDK to trace database requests that Dynatrace doesn't detect automatically. This will not only enable you to see single SQL statements within the traced requests, it will also extend SmartScape to include the traced database in the topology. This in turn will extend the reach of the Dynatrace AI, because it will baseline the behaviour of every single reported SQL statement and alert you on errors or slowdowns down to the single SQL statement.
@@ -160,6 +168,7 @@ try {
 ```
 
 <a name="webrequests"/>
+
 ## Trace incoming web requests
 
 You can use the SDK to trace incoming web requests. This might be useful if Dynatrace does not support the respective web server framework or language.
@@ -188,6 +197,7 @@ try {
 ```
 
 <a name="furtherreading"/>
+
 # Further reading
 
 * <a href="https://answers.dynatrace.com/spaces/483/dynatrace-product-ideas/idea/198106/planned-features-for-oneagent-sdk.html" target="_blank">Feedback & Roadmap thread in AnswerHub</a>
