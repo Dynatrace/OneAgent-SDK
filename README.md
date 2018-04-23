@@ -68,7 +68,9 @@ Imagine making a call to a cloud based clustered service. You can trace this cal
 
 If you can trace the call end-to-end though, the extra information about the communication endpoint will enable Dynatrace to understand the extra hops in between due to load balancers and proxies, which its AI can use again to better determine the root cause of any issue.
 
-## Using the Dynatrace OneAgent SDK to trace remote calls
+# Features
+
+## Trace incoming and outgoing remote calls
 
 You can use the SDK to trace proprietary IPC communication from one process to the other. This will enable you to see full Service Flow, PurePath and Smartscape topology for remoting technologies that Dynatrace is not aware of.
 
@@ -107,7 +109,7 @@ try {
 }
 ```
 
-## Using the Dynatrace OneAgent SDK to trace database requests
+## Trace database requests
 
 You can use the SDK to trace database requests that Dynatrace doesn't detect automatically. This will not only enable you to see single SQL statements within the traced requests, it will also extend SmartScape to include the traced database in the topology. This in turn will extend the reach of the Dynatrace AI, because it will baseline the behaviour of every single reported SQL statement and alert you on errors or slowdowns down to the single SQL statement.
 
@@ -134,7 +136,7 @@ try {
 }
 ```
 
-## Using the Dynatrace OneAgent SDK to trace incoming web requests
+## Trace incoming web requests
 
 You can use the SDK to trace incoming web requests. This might be useful if Dynatrace does not support the respective web server framework or language.
 
