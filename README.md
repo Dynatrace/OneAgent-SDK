@@ -88,17 +88,17 @@ The second purpose of a Tracer is to allow tracing across process boundaries. To
 
 <a name="endpoints"/>
 
-## Service endpoints and communication endpoints
+## Service name, service endpoints and communication endpoints
 
-Dynatrace supports the idea that the same service is deployed in different environments or just multiple times with different configs. One such logical deployment is usually identified some sort of endpoint string, most of times an URL. Therefore you can have the same service (same name) with multiple service endpoints (deployed instances of the service).
+Dynatrace supports the idea that the same service is deployed in different environments or just multiple times with different configs. One such logical deployment is usually identified some sort of endpoint string, most of times an URL. Therefore you can have the same *service (same name)* with multiple *service endpoints* (deployed instances of the service). 
 
-Additionally you can supply the actual communication endpoint. This might sound strange until you think about clustered and highly available servies. In such a case the same logic endpoint might have multiple communication endpoints. These might even change over time. The communication endpoint allows Dynatrace to understand which process, device or cloud service will receive the request. Thus even if you cannot install a OneAgent on that receiving end, the Dynatrace AI can reason about its impact on your system.
+Additionally you can supply the actual *endpoint for the communication channel*. This might sound strange until you think about clustered and highly available services. In such a case the same logical endpoint might have multiple *communication endpoints*. These might even change over time. The *communication endpoint* allows Dynatrace to understand which process, device or cloud service will receive the request. Thus even if you cannot install a OneAgent on that receiving end, the Dynatrace AI can reason about its impact on your system.
 
-Imagine making a call to a cloud based clustered service. You can trace this call with the SDK, but you cannot install a OneAgent on that cloud based service. Due to the distinction of service endpoint and communication endpoint Dynatrace will understand that you are making calls to this service, it will understand that there are multiple instances, and if one of those starts to fail, the Dynatrace AI will be able to tell you about this and the impact this has.
+Imagine making a call to a cloud based clustered service. You can trace this call with the SDK, but you cannot install a OneAgent on that cloud based service. Due to the distinction of *service endpoint* and *communication endpoint* Dynatrace will understand that you are making calls to this service, it will understand that there are multiple instances, and if one of those starts to fail, the Dynatrace AI will be able to tell you about this and the impact this has.
 
-If you can trace the call end-to-end though, the extra information about the communication endpoint will enable Dynatrace to understand the extra hops in between due to load balancers and proxies, which its AI can use again to better determine the root cause of any issue.
+If you can trace the call end-to-end though, the extra information about the *communication endpoint* will enable Dynatrace to understand the extra hops in between due to load balancers and proxies, which its AI can use again to better determine the root cause of any issue.
 
-See also: <a href="https://www.dynatrace.com/support/help/server-side-services/introduction/how-does-dynatrace-detect-and-name-services/" target="_blank">How does Dynatrace detect and name services?</a> in the product documentation.
+See <a href="https://www.dynatrace.com/support/help/server-side-services/service-analysis/how-do-i-analyze-individual-service-instances/" target="_blank">How do I analyze service instances?</a> in the Dynatrace product documentation to learn more.
 
 <a name="features"/>
 
