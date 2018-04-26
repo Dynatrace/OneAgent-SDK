@@ -216,12 +216,12 @@ The Dynatrace OneAgent SDK is an open source project, currently in beta status. 
 * Ask a question in the <a href="https://answers.dynatrace.com/spaces/482/view.html" target="_blank">product forums</a>
 * Read the <a href="https://www.dynatrace.com/support/help/" target="_blank">product documentation</a>
 
-**Open a GitHub ticket to:**
+**Open a GitHub issue to:**
 * Report minor defects, minor items or typos
 * Ask for improvements or changes in the SDK API
 * Ask any questions related to the community effort
 
-SLAs don't apply for GitHub tickets
+SLAs don't apply for GitHub issues
 
 **Customers can open a ticket on the <a href="https://support.dynatrace.com/supportportal/" target="_blank">Dynatrace support portal</a> to:**
 * Get support from the Dynatrace technical support engineering team
