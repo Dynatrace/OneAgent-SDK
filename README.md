@@ -17,6 +17,7 @@ This repository therefore can be considered a language independent documentation
  	* [Trace incoming and outgoing remote calls](#remoting)
  	* [Trace database requests](#database)
  	* [Trace incoming web requests](#webrequests)
+ 	* [Trace in-process asynchronous execution](#in-process-linking)
 * [Help & Support](#help)
 * [Further reading](#furtherreading)
 
@@ -199,6 +200,35 @@ tracer.start();
 try {
 	int statusCodeReturnedToClient = processWebRequest();
 	tracer.setStatusCode(statusCodeReturnedToClient);
+} catch (Exception e) {
+	tracer.error(e);
+} finally {
+	tracer.end();
+}
+```
+
+<a name="help"/>
+
+<a name="in-process-linking"/>
+
+## Trace in-process asynchronous execution
+
+You can use the SDK to trace asynchronous in-process code execution. This might be useful if Dynatrace does not support the threading framework or specific asynchronous libraries. In-process-linking will only be used to link other services (Database-, Webrequests, ...) between thread or queuing boundaries, where currently no support is available.
+
+To link asynchronous execution, you need to receive a InProcessLink, where async execution forks:
+
+```Java
+InProcessLink inProcessLink = OneAgentSDK.createInProcessLink();
+```
+
+The provided inProcessLink might be serialized outside the process. The InProcessLink must be used to start tracing where the async execution takes place:
+
+```Java
+InProcessLinkTracer tracer = oneAgentSDK.traceInProcessLink(inProcessLink);
+
+tracer.start();
+try {
+	// do the asynchronous job
 } catch (Exception e) {
 	tracer.error(e);
 } finally {
