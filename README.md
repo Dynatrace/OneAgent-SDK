@@ -221,7 +221,7 @@ To link asynchronous execution, you need to receive a InProcessLink, where async
 InProcessLink inProcessLink = OneAgentSDK.createInProcessLink();
 ```
 
-The provided inProcessLink might be serialized outside the process. The InProcessLink must be used to start tracing where the async execution takes place:
+The provided inProcessLink must not serialized and can only be used inside the process, where it has been created. It must be used to start tracing where the async execution takes place:
 
 ```Java
 InProcessLinkTracer tracer = oneAgentSDK.traceInProcessLink(inProcessLink);
