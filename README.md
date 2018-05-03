@@ -366,7 +366,7 @@ Default might be overriden by tenant specific configuration.
 
 ## Logging callback
 
-The SDK provides a logging-callback to give information back to calling application in case of an error. User application has to provide a callback like with folling methods:
+The SDK provides a logging-callback to give information back to calling application in case of an error. User application has to provide a callback like following:
 
 ```Java
 public interface LoggingCallback {
