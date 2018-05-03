@@ -243,12 +243,12 @@ try {
 
 ## Trace messages
 
-You can use the SDK to trace messages send or received via messaging system. When tracing messages, we distinct between:
+You can use the SDK to trace messages sent or received via messaging system. When tracing messages, we distinct between:
 * sending a message
 * receiving a message
 * processing a received message
 
-To trace an outgoing message, the needed code looks straight forward compared to other used tracers:
+To trace an outgoing message, the code looks straight forward compared to other tracers:
  
 ```Java
 MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
@@ -306,30 +306,25 @@ while(true) {
 }
 ```
 
-In case no blocking call happens (e. g. message processing happens via eventhandler), there is no need to use ReceivingMessageTracer - just trace processing of the message by using the ProcessingMessageTracer:
+In case of no blocking call happens (e. g. message processing via eventhandler), there is no need to use ReceivingMessageTracer - just trace processing of the message by using the ProcessingMessageTracer:
 
 ```Java
 public void onMessage(Message message) {
 	MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
 			"requestQueue", MessageDestinationType.QUEUE, ChannelType.TCP_IP, "localhost:4711");
 
-		ProcessingMessageTracer processingMessageTracer = oneAgentSDK.traceProcessingMessage(messagingSystemInfo);
-		processingMessageTracer.setDynatraceStringTag((String)
-										message.getObjectProperty(OneAgentSDK.DYNATRACE_MESSAGING_HEADERNAME));
-		processingMessageTracer.setVendorMessageId(queryMessage.msgId);
-		processingMessageTracer.setCorrelationId(queryMessage.correlationId);
-		processingMessageTracer.start();
-		try {
-			// do the work ... 
-		} catch (Exception e) {
-			processingMessageTracer.error(e.getMessage());
-		} finally {
-			processingMessageTracer.end();
-		}
+	ProcessingMessageTracer processingMessageTracer = oneAgentSDK.traceProcessingMessage(messagingSystemInfo);
+	processingMessageTracer.setDynatraceStringTag((String)
+									message.getObjectProperty(OneAgentSDK.DYNATRACE_MESSAGING_HEADERNAME));
+	processingMessageTracer.setVendorMessageId(queryMessage.msgId);
+	processingMessageTracer.setCorrelationId(queryMessage.correlationId);
+	processingMessageTracer.start();
+	try {
+		// do the work ... 
 	} catch (Exception e) {
-		receivingMessageTracer.error(e.getMessage());
+		processingMessageTracer.error(e.getMessage());
 	} finally {
-		receivingMessageTracer.end();
+		processingMessageTracer.end();
 	}
 }
 ```
