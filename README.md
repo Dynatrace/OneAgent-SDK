@@ -21,6 +21,7 @@ This repository therefore can be considered a language independent documentation
  	* [Trace messages](#messaging)
  	* [Add custom request attributes](#scav)
 * [Limits](#Limits)
+* [Troubleshooting](#troubleshooting)
 * [Help & Support](#help)
 * [Further reading](#furtherreading)
 
@@ -359,7 +360,27 @@ There are two length limits for string parameters. Longer strings will be silent
 
 Default might be overriden by tenant specific configuration.
 
+<a name="troubleshooting"/>
 
+# Troubleshooting
+
+## Logging callback
+
+The SDK provides a logging-callback to give information back to calling application in case of an error. User application has to provide a callback like with folling methods:
+
+```Java
+public interface LoggingCallback {
+
+	void warn(String message);
+
+	void error(String message);
+}
+```
+In general it is a good idea to forward these logging events to customers logging module.
+
+## Agent log
+
+In case of issues, where logging callback doesn't report any errors and UI doesn't help: check the [agent log](https://www.dynatrace.com/support/help/installation/setup-tips/where-can-i-find-oneagent-files-and-logs/).
 
 <a name="help"/>
 
