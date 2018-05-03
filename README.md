@@ -248,7 +248,7 @@ You can use the SDK to trace messages send or received via messaging system. Whe
 * receiving a message
 * processing a received message
 
-To trace an outgoing message, you the needed code look straight forward compared to other used tracers:
+To trace an outgoing message, the needed code looks straight forward compared to other used tracers:
  
 ```Java
 MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
@@ -272,7 +272,7 @@ try {
 }
 ```
 
-On the incoming side, we need to differ between the blocking receiving part and processing the received message.
+On the incoming side, we need to differ between the blocking receiving part and processing the received message. Therefore two different tracers are used: ReceivingMessageTracer and ProcessingMessageTracer.
 
 ```Java
 MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
@@ -306,7 +306,7 @@ while(true) {
 }
 ```
 
-In case no blocking happens (e. g. message processing happens via eventhandler), there is no need to use ReceivingMessageTracer - just trace processing of the message by using the ProcessingMessageTracer:
+In case no blocking call happens (e. g. message processing happens via eventhandler), there is no need to use ReceivingMessageTracer - just trace processing of the message by using the ProcessingMessageTracer:
 
 ```Java
 public void onMessage(Message message) {
