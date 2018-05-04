@@ -257,23 +257,24 @@ MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo(
 OutgoingMessageTracer outgoingMessageTracer = oneAgentSDK.traceOutgoingMessage(messagingSystemInfo);
 outgoingMessageTracer.start();
 try {
-
 	// transport the dynatrace tag along with the message: 	
 	messageToSend.setHeaderField(
-						OneAgentSDK.DYNATRACE_MESSAGING_HEADERNAME, outgoingMessageTracer.getDynatraceStringTag());
+		OneAgentSDK.DYNATRACE_MESSAGING_HEADERNAME, outgoingMessageTracer.getDynatraceStringTag());
 	theQueue.send(messageToSend);
 	
-	// optional:  payload
+	// optional:  add messageid provided from messaging system
 	outgoingMessageTracer.setVendorMessageId(toSend.getMessageId());
+	// optional:  add correlationId
 	outgoingMessageTracer.setCorrelationId(toSend.correlationId);
 } catch (Exception e) {
 	outgoingMessageTracer.error(e.getMessage());
+	Logger.logError(e);
 } finally {
 	outgoingMessageTracer.end();
 }
 ```
 
-On the incoming side, we need to differ between the blocking receiving part and processing the received message. Therefore two different tracers are used: ReceivingMessageTracer and ProcessingMessageTracer.
+On the incoming side, we need to differ between the blocking receiving part and processing the received message. Therefore two different tracers are being used: ReceivingMessageTracer and ProcessingMessageTracer.
 
 ```Java
 MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
@@ -286,9 +287,10 @@ while(true) {
 	try {
 		// blocking call - until message is being available:
 		Message queryMessage = theQueue.receive("client queries");
-		ProcessingMessageTracer processingMessageTracer = oneAgentSDK.traceProcessingMessage(messagingSystemInfo);
+		ProcessingMessageTracer processingMessageTracer = oneAgentSDK
+			.traceProcessingMessage(messagingSystemInfo);
 		processingMessageTracer.setDynatraceStringTag(
-										queryMessage.getHeaderField(OneAgentSDK.DYNATRACE_MESSAGING_HEADERNAME));
+			queryMessage.getHeaderField(OneAgentSDK.DYNATRACE_MESSAGING_HEADERNAME));
 		processingMessageTracer.setVendorMessageId(queryMessage.msgId);
 		processingMessageTracer.setCorrelationId(queryMessage.correlationId);
 		processingMessageTracer.start();
@@ -296,11 +298,13 @@ while(true) {
 			// do the work ... 
 		} catch (Exception e) {
 			processingMessageTracer.error(e.getMessage());
+			Logger.logError(e);
 		} finally {
 			processingMessageTracer.end();
 		}
 	} catch (Exception e) {
 		receivingMessageTracer.error(e.getMessage());
+		Logger.logError(e);
 	} finally {
 		receivingMessageTracer.end();
 	}
@@ -312,11 +316,12 @@ In case of no blocking call happens (e. g. message processing via eventhandler),
 ```Java
 public void onMessage(Message message) {
 	MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
-			"requestQueue", MessageDestinationType.QUEUE, ChannelType.TCP_IP, "localhost:4711");
+		"requestQueue", MessageDestinationType.QUEUE, ChannelType.TCP_IP, "localhost:4711");
 
-	ProcessingMessageTracer processingMessageTracer = oneAgentSDK.traceProcessingMessage(messagingSystemInfo);
+	ProcessingMessageTracer processingMessageTracer = oneAgentSDK
+		.traceProcessingMessage(messagingSystemInfo);
 	processingMessageTracer.setDynatraceStringTag((String)
-									message.getObjectProperty(OneAgentSDK.DYNATRACE_MESSAGING_HEADERNAME));
+		message.getObjectProperty(OneAgentSDK.DYNATRACE_MESSAGING_HEADERNAME));
 	processingMessageTracer.setVendorMessageId(queryMessage.msgId);
 	processingMessageTracer.setCorrelationId(queryMessage.correlationId);
 	processingMessageTracer.start();
@@ -324,6 +329,7 @@ public void onMessage(Message message) {
 		// do the work ... 
 	} catch (Exception e) {
 		processingMessageTracer.error(e.getMessage());
+		Logger.logError(e);
 	} finally {
 		processingMessageTracer.end();
 	}
@@ -376,7 +382,7 @@ public interface LoggingCallback {
 	void error(String message);
 }
 ```
-In general it is a good idea to forward these logging events to customers logging module.
+In general it is a good idea to forward these logging events to your application specific logging framework.
 
 ## Agent log
 
