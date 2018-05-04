@@ -211,8 +211,6 @@ try {
 }
 ```
 
-<a name="help"/>
-
 <a name="in-process-linking"/>
 
 ## Trace in-process asynchronous execution
