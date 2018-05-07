@@ -18,9 +18,9 @@ This repository therefore can be considered a language independent documentation
  	* [Trace database requests](#database)
  	* [Trace incoming web requests](#webrequests)
  	* [Trace in-process asynchronous execution](#in-process-linking)
- 	* [Trace messages](#messaging)
+ 	* [Trace messaging](#messaging)
  	* [Add custom request attributes](#scav)
-* [Limits](#Limits)
+* [Limits](#limits)
 * [Troubleshooting](#troubleshooting)
 * [Help & Support](#help)
 * [Further reading](#furtherreading)
@@ -215,9 +215,9 @@ try {
 
 ## Trace in-process asynchronous execution
 
-You can use the SDK to trace asynchronous in-process code execution. This might be useful if Dynatrace does not support the threading framework or specific asynchronous libraries. In-process-linking will only be used to link other services (Database-, Webrequests, ...) between thread or queuing boundaries, where currently no support is available.
+You can use the SDK to trace asynchronous in-process code execution. This might be useful if OneAgent does not support the threading framework or specific asynchronous libraries. In-process-linking should be used to link other services (Database-, Webrequests, ...) between thread or queuing boundaries currently not supported out-of-the-box by OneAgent.
 
-To link asynchronous execution, you need to receive a InProcessLink, where async execution forks:
+To link asynchronous execution, you need to create an ``InProcessLink``, where async execution forks:
 
 ```Java
 InProcessLink inProcessLink = OneAgentSDK.createInProcessLink();
@@ -240,9 +240,10 @@ try {
 
 <a name="messaging"/>
 
-## Trace messages
+## Trace messaging
 
-You can use the SDK to trace messages sent or received via messaging system. When tracing messages, we distinct between:
+You can use the SDK to trace messages sent or received via messaging system. When tracing messages, we distinguish between:
+
 * sending a message
 * receiving a message
 * processing a received message
@@ -272,13 +273,13 @@ try {
 }
 ```
 
-On the incoming side, we need to differ between the blocking receiving part and processing the received message. Therefore two different tracers are being used: ReceivingMessageTracer and ProcessingMessageTracer.
+On the incoming side, we need to differ between the blocking receiving part and processing the received message. Therefore two different tracers are being used: ``ReceivingMessageTracer`` and ``ProcessingMessageTracer``.
 
 ```Java
 MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
 		"requestQueue", MessageDestinationType.QUEUE, ChannelType.TCP_IP, "localhost:4711");
 
-// following code is probably inside a busy loop:
+// message receiving daemon task:
 while(true) {
 	ReceivingMessageTracer receivingMessageTracer = oneAgentSDK.traceReceivingMessage(messagingSystemInfo);
 	receivingMessageTracer.start();
@@ -309,13 +310,13 @@ while(true) {
 }
 ```
 
-In case of no blocking call happens (e. g. message processing via eventhandler), there is no need to use ReceivingMessageTracer - just trace processing of the message by using the ProcessingMessageTracer:
+In case of non blocking receive (e. g. via eventhandler), there is no need to use ``ReceivingMessageTracer`` - just trace processing of the message by using the ``ProcessingMessageTracer``:
 
 ```Java
-public void onMessage(Message message) {
-	MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
-		"requestQueue", MessageDestinationType.QUEUE, ChannelType.TCP_IP, "localhost:4711");
+MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
+	"requestQueue", MessageDestinationType.QUEUE, ChannelType.TCP_IP, "localhost:4711");
 
+public void onMessage(Message message) {
 	ProcessingMessageTracer processingMessageTracer = oneAgentSDK
 		.traceProcessingMessage(messagingSystemInfo);
 	processingMessageTracer.setDynatraceStringTag((String)
@@ -338,9 +339,9 @@ public void onMessage(Message message) {
 
 ## Add custom request attributes
 
-You can use the SDK to add custom request attributes to current traced service. Custom request attributes allows you to do easier/better filtering of your requests in dynatrace.
+You can use the SDK to add custom request attributes to current traced service. Custom request attributes allow you to do easier/better filtering of your requests in Dynatrace.
 
-Adding custom request attributes to the current traced service call is pretty simple. Just call one of the addCustomRequestAttribute methods with your key and value:
+Adding custom request attributes to the current traced service call is pretty simple. Just call one of the ``addCustomRequestAttribute`` methods with your key and value:
 
 ```Java
 oneAgentSDK.addCustomRequestAttribute("region", "EMEA");
@@ -357,12 +358,13 @@ There are common limits, which will we applied when no other limit is explicitly
 
 ## String length
 
-There are two length limits for string parameters. Longer strings will be silently truncated:
+There are different length limits for string parameters:
 
-* SQL statements: default 4096 characters 
+* SQL statements: default 4096 characters
+* Webrequest related (URI, Query, Hostnames, ...): 250 characters
 * All other: 250 characters
 
-Default might be overriden by tenant specific configuration.
+Longer strings will be silently truncated. Default might be overriden by tenant specific configuration.
 
 <a name="troubleshooting"/>
 
