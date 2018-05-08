@@ -258,7 +258,7 @@ outgoingMessageTracer.start();
 try {
 	// transport the dynatrace tag along with the message: 	
 	messageToSend.setHeaderField(
-		OneAgentSDK.DYNATRACE_MESSAGING_HEADERNAME, outgoingMessageTracer.getDynatraceStringTag());
+		OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME, outgoingMessageTracer.getDynatraceStringTag());
 	theQueue.send(messageToSend);
 	
 	// optional:  add messageid provided from messaging system
@@ -281,31 +281,32 @@ MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo(
 
 // message receiving daemon task:
 while(true) {
-	ReceivingMessageTracer receivingMessageTracer = oneAgentSDK.traceReceivingMessage(messagingSystemInfo);
-	receivingMessageTracer.start();
+	IncomingMessageReceiveTracer incomingMessageReceiveTracer = 
+		oneAgentSDK.traceIncomingMessageReceive(messagingSystemInfo);
+	incomingMessageReceiveTracer.start();
 	try {
 		// blocking call - until message is being available:
 		Message queryMessage = theQueue.receive("client queries");
-		ProcessingMessageTracer processingMessageTracer = oneAgentSDK
-			.traceProcessingMessage(messagingSystemInfo);
-		processingMessageTracer.setDynatraceStringTag(
-			queryMessage.getHeaderField(OneAgentSDK.DYNATRACE_MESSAGING_HEADERNAME));
-		processingMessageTracer.setVendorMessageId(queryMessage.msgId);
-		processingMessageTracer.setCorrelationId(queryMessage.correlationId);
-		processingMessageTracer.start();
+		IncomingMessageProcessTracer incomingMessageProcessTracer = oneAgentSDK
+			.traceIncomingMessageProcess(messagingSystemInfo);
+		incomingMessageProcessTracer.setDynatraceStringTag(
+			queryMessage.getHeaderField(OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME));
+		incomingMessageProcessTracer.setVendorMessageId(queryMessage.msgId);
+		incomingMessageProcessTracer.setCorrelationId(queryMessage.correlationId);
+		incomingMessageProcessTracer.start();
 		try {
 			// do the work ... 
 		} catch (Exception e) {
-			processingMessageTracer.error(e.getMessage());
+			incomingMessageProcessTracer.error(e.getMessage());
 			Logger.logError(e);
 		} finally {
-			processingMessageTracer.end();
+			incomingMessageProcessTracer.end();
 		}
 	} catch (Exception e) {
-		receivingMessageTracer.error(e.getMessage());
+		incomingMessageReceiveTracer.error(e.getMessage());
 		Logger.logError(e);
 	} finally {
-		receivingMessageTracer.end();
+		incomingMessageReceiveTracer.end();
 	}
 }
 ```
@@ -317,20 +318,20 @@ MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo(
 	"requestQueue", MessageDestinationType.QUEUE, ChannelType.TCP_IP, "localhost:4711");
 
 public void onMessage(Message message) {
-	ProcessingMessageTracer processingMessageTracer = oneAgentSDK
-		.traceProcessingMessage(messagingSystemInfo);
-	processingMessageTracer.setDynatraceStringTag((String)
-		message.getObjectProperty(OneAgentSDK.DYNATRACE_MESSAGING_HEADERNAME));
-	processingMessageTracer.setVendorMessageId(queryMessage.msgId);
-	processingMessageTracer.setCorrelationId(queryMessage.correlationId);
-	processingMessageTracer.start();
+	IncomingMessageProcessTracer incomingMessageProcessTracer = oneAgentSDK
+		.traceIncomingMessageProcess(messagingSystemInfo);
+	incomingMessageProcessTracer.setDynatraceStringTag((String)
+		message.getObjectProperty(OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME));
+	incomingMessageProcessTracer.setVendorMessageId(queryMessage.msgId);
+	incomingMessageProcessTracer.setCorrelationId(queryMessage.correlationId);
+	incomingMessageProcessTracer.start();
 	try {
 		// do the work ... 
 	} catch (Exception e) {
-		processingMessageTracer.error(e.getMessage());
+		incomingMessageProcessTracer.error(e.getMessage());
 		Logger.logError(e);
 	} finally {
-		processingMessageTracer.end();
+		incomingMessageProcessTracer.end();
 	}
 }
 ```
