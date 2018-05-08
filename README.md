@@ -17,6 +17,11 @@ This repository therefore can be considered a language independent documentation
  	* [Trace incoming and outgoing remote calls](#remoting)
  	* [Trace database requests](#database)
  	* [Trace incoming web requests](#webrequests)
+ 	* [Trace in-process asynchronous execution](#in-process-linking)
+ 	* [Trace messaging](#messaging)
+ 	* [Add custom request attributes](#scav)
+* [Limits](#limits)
+* [Troubleshooting](#troubleshooting)
 * [Help & Support](#help)
 * [Further reading](#furtherreading)
 
@@ -41,6 +46,8 @@ The language specific SDKs are open source and published directly to GitHub, tog
 * [OneAgent SDK for Node.js](https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs)
 * [OneAgent SDK for Java](https://github.com/Dynatrace/OneAgent-SDK-for-Java)
 * [OneAgent SDK for C/C++](https://github.com/Dynatrace/OneAgent-SDK-for-C)
+
+The API is available in Java language for reference purposes. See [api Folder](https://github.com/Dynatrace/OneAgent-SDK/blob/master/api).
 
 <a name="apiconcepts"/>
 
@@ -205,6 +212,184 @@ try {
 	tracer.end();
 }
 ```
+
+<a name="in-process-linking"/>
+
+## Trace in-process asynchronous execution
+
+You can use the SDK to trace asynchronous in-process code execution. This might be useful if the OneAgent does not support the threading framework or specific asynchronous libraries. In-process-linking should be used to link other services (Database, Webrequests, ...) between thread or queueing boundaries currently not supported out-of-the-box by the OneAgent.
+
+To link asynchronous execution, you need to create an ``InProcessLink``, where async execution forks:
+
+```Java
+InProcessLink inProcessLink = OneAgentSDK.createInProcessLink();
+```
+
+The provided inProcessLink must not serialized and can only be used inside the process, where it has been created. It must be used to start tracing where the async execution takes place:
+
+```Java
+InProcessLinkTracer tracer = oneAgentSDK.traceInProcessLink(inProcessLink);
+
+tracer.start();
+try {
+	// do the asynchronous job
+} catch (Exception e) {
+	tracer.error(e);
+} finally {
+	tracer.end();
+}
+```
+
+<a name="messaging"/>
+
+## Trace messaging
+
+You can use the SDK to trace messages sent or received via messaging system. When tracing messages, we distinguish between:
+
+* sending a message
+* receiving a message
+* processing a received message
+
+To trace an outgoing message, the code looks straight forward compared to other tracers:
+ 
+```Java
+MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
+		"requestQueue", MessageDestinationType.QUEUE, ChannelType.TCP_IP, "localhost:4711");
+OutgoingMessageTracer outgoingMessageTracer = oneAgentSDK.traceOutgoingMessage(messagingSystemInfo);
+outgoingMessageTracer.start();
+try {
+	// transport the dynatrace tag along with the message: 	
+	messageToSend.setHeaderField(
+		OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME, outgoingMessageTracer.getDynatraceStringTag());
+	theQueue.send(messageToSend);
+	
+	// optional:  add messageid provided from messaging system
+	outgoingMessageTracer.setVendorMessageId(toSend.getMessageId());
+	// optional:  add correlationId
+	outgoingMessageTracer.setCorrelationId(toSend.correlationId);
+} catch (Exception e) {
+	outgoingMessageTracer.error(e.getMessage());
+	Logger.logError(e);
+} finally {
+	outgoingMessageTracer.end();
+}
+```
+
+On the incoming side, we need to differentiate between the blocking receiving part and processing the received message. Therefore two different tracers are being used: ``ReceivingMessageTracer`` and ``ProcessingMessageTracer``.
+
+```Java
+MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
+		"requestQueue", MessageDestinationType.QUEUE, ChannelType.TCP_IP, "localhost:4711");
+
+// message receiving daemon task:
+while(true) {
+	IncomingMessageReceiveTracer incomingMessageReceiveTracer = 
+		oneAgentSDK.traceIncomingMessageReceive(messagingSystemInfo);
+	incomingMessageReceiveTracer.start();
+	try {
+		// blocking call - until message is being available:
+		Message queryMessage = theQueue.receive("client queries");
+		IncomingMessageProcessTracer incomingMessageProcessTracer = oneAgentSDK
+			.traceIncomingMessageProcess(messagingSystemInfo);
+		incomingMessageProcessTracer.setDynatraceStringTag(
+			queryMessage.getHeaderField(OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME));
+		incomingMessageProcessTracer.setVendorMessageId(queryMessage.msgId);
+		incomingMessageProcessTracer.setCorrelationId(queryMessage.correlationId);
+		incomingMessageProcessTracer.start();
+		try {
+			// do the work ... 
+		} catch (Exception e) {
+			incomingMessageProcessTracer.error(e.getMessage());
+			Logger.logError(e);
+		} finally {
+			incomingMessageProcessTracer.end();
+		}
+	} catch (Exception e) {
+		incomingMessageReceiveTracer.error(e.getMessage());
+		Logger.logError(e);
+	} finally {
+		incomingMessageReceiveTracer.end();
+	}
+}
+```
+
+In case of non-blocking receive (e. g. via eventhandler), there is no need to use ``ReceivingMessageTracer`` - just trace processing of the message by using the ``ProcessingMessageTracer``:
+
+```Java
+MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
+	"requestQueue", MessageDestinationType.QUEUE, ChannelType.TCP_IP, "localhost:4711");
+
+public void onMessage(Message message) {
+	IncomingMessageProcessTracer incomingMessageProcessTracer = oneAgentSDK
+		.traceIncomingMessageProcess(messagingSystemInfo);
+	incomingMessageProcessTracer.setDynatraceStringTag((String)
+		message.getObjectProperty(OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME));
+	incomingMessageProcessTracer.setVendorMessageId(queryMessage.msgId);
+	incomingMessageProcessTracer.setCorrelationId(queryMessage.correlationId);
+	incomingMessageProcessTracer.start();
+	try {
+		// do the work ... 
+	} catch (Exception e) {
+		incomingMessageProcessTracer.error(e.getMessage());
+		Logger.logError(e);
+	} finally {
+		incomingMessageProcessTracer.end();
+	}
+}
+```
+
+<a name="scav"/>
+
+## Add custom request attributes
+
+You can use the SDK to add custom request attributes to current traced service. Custom request attributes allow you to do easier/better filtering of your requests in Dynatrace.
+
+Adding custom request attributes to the currently traced service call is pretty simple. Just call one of the ``addCustomRequestAttribute`` methods with your key and value:
+
+```Java
+oneAgentSDK.addCustomRequestAttribute("region", "EMEA");
+oneAgentSDK.addCustomRequestAttribute("salesAmount", 2500);
+```
+
+When no service call is being traced, the custom request attributes are dropped. 
+
+<a name="limits"/>
+
+# Limits
+
+There are common limits, which will we applied when no other limit is explicitly mentioned.
+
+## String length
+
+There are different length limits for string parameters:
+
+* SQL statements: default 4096 characters
+* Webrequest related (URI, Query, Hostnames, ...): default 250 characters
+* All other: default 250 characters
+
+Longer strings will be silently truncated. Default might be overriden by tenant specific configuration.
+
+<a name="troubleshooting"/>
+
+# Troubleshooting
+
+## Logging callback
+
+The SDK provides a logging-callback to give information back to the calling application in case of an error. The user application has to provide a callback like the following:
+
+```Java
+public interface LoggingCallback {
+
+	void warn(String message);
+
+	void error(String message);
+}
+```
+In general it is a good idea to forward these logging events to your application specific logging framework.
+
+## Agent log
+
+In case of issues, where the logging callback doesn't report any errors and the UI doesn't help: check the [agent log](https://www.dynatrace.com/support/help/installation/setup-tips/where-can-i-find-oneagent-files-and-logs/).
 
 <a name="help"/>
 
