@@ -16,7 +16,9 @@ This repository therefore can be considered a language independent documentation
 * [Features](#features)
  	* [Trace incoming and outgoing remote calls](#remoting)
  	* [Trace database requests](#database)
- 	* [Trace incoming web requests](#webrequests)
+ 	* [Trace web requests](#webrequests)
+ 	 	* [Trace incoming web requests](#inwebrequests)
+ 	 	* [Trace outgoing web requests](#outwebrequests)
  	* [Trace in-process asynchronous execution](#in-process-linking)
  	* [Trace messaging](#messaging)
  	* [Add custom request attributes](#scav)
@@ -187,7 +189,11 @@ try {
 
 <a name="webrequests"/>
 
-## Trace incoming web requests
+## Trace web requests
+
+<a name="inwebrequests"/>
+
+### Trace incoming web requests
 
 You can use the SDK to trace incoming web requests. This might be useful if Dynatrace does not support the respective web server framework or language.
 
@@ -207,6 +213,45 @@ tracer.start();
 try {
 	int statusCodeReturnedToClient = processWebRequest();
 	tracer.setStatusCode(statusCodeReturnedToClient);
+} catch (Exception e) {
+	tracer.error(e);
+} finally {
+	tracer.end();
+}
+```
+
+
+<a name="outwebrequests"/>
+
+### Trace outgoing web requests
+
+You can use the SDK to trace outgoing web requests. This might be useful if Dynatrace does not support the respective http library or language.
+
+To trace a outgoing web request you need to create a Tracer object. It is important to include the Dynatrace header. This ensures that tagging with our built-in sensor is working.
+
+```Java
+OutgoingWebRequestTracer tracer = oneAgentSdk.traceOutgoingWebRequest(url, "GET");
+tracer.start();
+try {
+	request = MyHttpLibrary.newGetRequest(url);
+	
+	// sending HTTP header OneAgentSDK.DYNATRACE_HTTP_HEADERNAME is necessary for tagging:
+	request.addHeader(OneAgentSDK.DYNATRACE_HTTP_HEADERNAME, tracer.getDynatraceStringTag());
+
+	// provide all request headers to tracer (optional):
+	for (Entry<String, String> entry : request.getHeaders().entrySet()) {
+		tracer.addRequestHeader(entry.getKey(), entry.getValue());
+	}
+	
+	response = request.execute();
+	
+	for (Entry<String, List<String>> entry : response.getHeaders().entrySet()) {
+		for (String value : entry.getValue()) {
+			tracer.addResponseHeader(entry.getKey(), value);
+		}
+	}
+	tracer.setStatusCode(response.getResponseCode());
+	
 } catch (Exception e) {
 	tracer.error(e);
 } finally {
