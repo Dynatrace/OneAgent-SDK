@@ -1,6 +1,6 @@
 # How to use this repository
 
-This repository contains the specification of the Dynatrace OneAgent SDK. All interfaces are specified in Java as the language of choice. These interfaces are translated and implemented in different languages. We try to stay as close to the specification as possible, while still ensuring that language specific concepts are used where this makes the interface more usable.
+This repository contains the specification of the Dynatrace OneAgent SDK. All interfaces are specified in Java as the language of choice. These interfaces are implemented in different languages. We try to stay as close to the specification as possible, while still ensuring that language specific concepts are used where this makes the interface more usable.
 
 This repository therefore can be considered a language independent documentation of the SDK's APIs and concepts.
 
@@ -16,7 +16,9 @@ This repository therefore can be considered a language independent documentation
 * [Features](#features)
  	* [Trace incoming and outgoing remote calls](#remoting)
  	* [Trace database requests](#database)
- 	* [Trace incoming web requests](#webrequests)
+ 	* [Trace web requests](#webrequests)
+ 	 	* [Trace incoming web requests](#inwebrequests)
+ 	 	* [Trace outgoing web requests](#outwebrequests)
  	* [Trace in-process asynchronous execution](#in-process-linking)
  	* [Trace messaging](#messaging)
  	* [Add custom request attributes](#scav)
@@ -41,14 +43,14 @@ OneAgent automatically detects that your application is instrumented with the On
 
 # Language specific SDKs
 
-The language specific SDKs are open source and published directly to GitHub, together with technical documentation and sample codes.
+The language specific SDKs are open source and published directly to GitHub, together with technical documentation and sample code.
 
 * [OneAgent SDK for Node.js](https://github.com/Dynatrace/OneAgent-SDK-for-NodeJs)
 * [OneAgent SDK for Java](https://github.com/Dynatrace/OneAgent-SDK-for-Java)
 * [OneAgent SDK for C/C++](https://github.com/Dynatrace/OneAgent-SDK-for-C)
 * [Early Access - OneAgent SDK for Python](https://github.com/Dynatrace/OneAgent-SDK-for-Python)
 
-The API is available in Java language for reference purposes. See [api Folder](https://github.com/Dynatrace/OneAgent-SDK/blob/master/api).
+The API is available in Java language for reference purposes. See [api folder](https://github.com/Dynatrace/OneAgent-SDK/blob/master/api).
 
 <a name="apiconcepts"/>
 
@@ -58,10 +60,10 @@ The API is available in Java language for reference purposes. See [api Folder](h
 
 ## OneAgentSDK object
 
-All interactions with the OneAgentSDK are done via a central interface. You can create an instance of this interface via a Factory.
+All interactions with the OneAgentSDK are done via a central interface. You can create an instance of this interface via a factory.
 
 ```Java
-OneAgentSDK OneAgentSDK = OneAgentSDKFactory.createInstance();
+OneAgentSDK oneAgentSDK = OneAgentSDKFactory.createInstance();
 ```
 
 You can create more than one object of this in your application. This ensures that you do not need to coordinate a singleton behavior across the whole applications and that different frameworks can use the SDK independently from each other. The OneAgentSDK object enables you to create Tracers for different aspects of your application.
@@ -70,7 +72,7 @@ You can create more than one object of this in your application. This ensures th
 
 ## Tracers
 
-To trace any kind of call you first need to create a Tracer. The Tracer object represents the logical and physical endpoint that you want to call. A Tracer serves two purposes. On the one hand to time the call (duration, CPU time and more) and on the other to report errors. That is why each Tracer has these three methods. The error method must be called only once, and it must be in between start and end. Actually it is not allowed to call start, end or error on the same Tracer instance from different threads.
+To trace any kind of call you first need to create a Tracer. The Tracer object represents the logical and physical endpoint that you want to call. A Tracer serves two purposes. On the one hand to time the call (duration, CPU time and more) and on the other to report errors. That is why each Tracer has these three methods. The error method must be called only once, and it must be in between start and end.
 
 ```Java
 void start();
@@ -80,7 +82,7 @@ void error(String message);
 void end();
 ```
 
-Therefore it is good practice to use a Tracer always with the following pattern:
+It is good practice to use a Tracer with the following pattern:
 
 ```Java
 tracer.start();
@@ -93,19 +95,21 @@ try {
 }
 ```
 
-The second purpose of a Tracer is to allow tracing across process boundaries. To achieve that these kind of traces supply so-called tags. Tags are strings or byte arrays that enable Dynatrace to trace a transaction end-to-end. As such the tag is the one information that you need to transport across these calls yourselfs.
+To allow tracing across process and technology boundaries, tracers can be supplied with so-called tags. Tags are strings or byte arrays generated by the SDK that enable Dynatrace to trace a transaction end-to-end. The user has to take care of transporting the tag from one process to the other.
+
+A Tracer instance can only be used from the thread on which it was created. See [Trace in-process asynchronous execution](#in-process-linking) for tracing across thread boundaries.
 
 <a name="endpoints"/>
 
 ## Service name, service endpoints and communication endpoints
 
-Dynatrace supports the idea that the same service is deployed in different environments or just multiple times with different configs. One such logical deployment is usually identified some sort of endpoint string, most of times an URL. Therefore you can have the same *service (same name)* with multiple *service endpoints* (deployed instances of the service). 
+Dynatrace supports the idea that the same service is deployed in different environments or just multiple times with different configs. One such logical deployment is usually identified some sort of endpoint string, most of times an URL. Therefore you can have the same *service (same name)* with multiple *service endpoints* (deployed instances of the service).
 
-Additionally you can supply the actual *endpoint for the communication channel*. This might sound strange until you think about clustered and highly available services. In such a case the same logical endpoint might have multiple *communication endpoints*. These might even change over time. The *communication endpoint* allows Dynatrace to understand which process, device or cloud service will receive the request. Thus even if you cannot install a OneAgent on that receiving end, the Dynatrace AI can reason about its impact on your system.
+Additionally you can supply the actual endpoint for the communication channel. This might sound strange until you think about clustered and highly available services. In such a case the same logical endpoint might have multiple communication endpoints. These might even change over time. The communication endpoint allows Dynatrace to understand which process, device or cloud service will receive the request. Thus even if you cannot install a OneAgent on that receiving end, the Dynatrace AI can reason about its impact on your system.
 
-Imagine making a call to a cloud based clustered service. You can trace this call with the SDK, but you cannot install a OneAgent on that cloud based service. Due to the distinction of *service endpoint* and *communication endpoint* Dynatrace will understand that you are making calls to this service, it will understand that there are multiple instances, and if one of those starts to fail, the Dynatrace AI will be able to tell you about this and the impact this has.
+Imagine making a call to a cloud based clustered service. You can trace this call with the SDK, but you cannot install a OneAgent on that cloud based service. Due to the distinction of service endpoint and communication endpoint Dynatrace will understand that you are making calls to this service, it will understand that there are multiple instances, and if one of those starts to fail, the Dynatrace AI will be able to tell you about this and the impact this has.
 
-If you can trace the call end-to-end though, the extra information about the *communication endpoint* will enable Dynatrace to understand the extra hops in between due to load balancers and proxies, which its AI can use again to better determine the root cause of any issue.
+If you can trace the call end-to-end though, the extra information about the communication endpoint will enable Dynatrace to understand the extra hops in between due to load balancers and proxies, which its AI can use again to better determine the root cause of any issue.
 
 See <a href="https://www.dynatrace.com/support/help/server-side-services/service-analysis/how-do-i-analyze-individual-service-instances/" target="_blank">How do I analyze service instances?</a> in the Dynatrace product documentation to learn more.
 
@@ -113,7 +117,7 @@ See <a href="https://www.dynatrace.com/support/help/server-side-services/service
 
 # Features
 
-The feature sets differ slightly with each language implementation. More functionality will be added over time, see <a href="https://answers.dynatrace.com/spaces/483/dynatrace-product-ideas/idea/198106/planned-features-for-oneagent-sdk.html" target="_blank">Planned features for OneAgent SDK</a> for details on upcoming features.
+The feature sets differ slightly with each language implementation - see the respective language-specific documentation for feature availability. More functionality will be added over time, see <a href="https://answers.dynatrace.com/spaces/483/dynatrace-product-ideas/idea/198106/planned-features-for-oneagent-sdk.html" target="_blank">Planned features for OneAgent SDK</a> for details on upcoming features.
 
 <a name="remoting"/>
 
@@ -124,17 +128,17 @@ You can use the SDK to trace proprietary IPC communication from one process to t
 To trace any kind of remote call you first need to create a Tracer. The Tracer object represents the endpoint that you want to call, as such you need to supply the name of the remote service and remote method. In addition you need to transport the tag in your remote call to the server side if you want to trace it end-to-end.
 
 ```Java
-OutgoingRemoteCallTracer outgoingRemoteCall = OneAgentSDK.traceOutgoingRemoteCall("remoteMethodToCall", "RemoteServiceName", "rmi://Endpoint/service", ChannelType.TCP_IP, "remoteHost:1234");
+OutgoingRemoteCallTracer tracer = OneAgentSDK.traceOutgoingRemoteCall("remoteMethodToCall", "RemoteServiceName", "rmi://Endpoint/service", ChannelType.TCP_IP, "remoteHost:1234");
 
-outgoingRemoteCall.start();
+tracer.start();
 try {
-	outgoingRemoteCall.setProtocolName("RMI/custom");
-	String tag = outgoingRemoteCall.getDynatraceStringTag();
-	//make the call and transport the tag across
+	tracer.setProtocolName("RMI/custom");
+	String tag = tracer.getDynatraceStringTag();
+	// make the call and transport the tag across
 } catch (Throwable e) {
-	outgoingRemoteCall.error(e);
+	tracer.error(e);
 } finally {
-	outgoingRemoteCall.end();
+	tracer.end();
 }
 
 ```
@@ -142,17 +146,17 @@ try {
 On the server side you need to wrap the handling and processing of your remote call as well. This will not only trace the server side call and everything that happens, it will also connect it to the calling side.
 
 ```Java
-IncomingRemoteCallTracer incomingRemoteCall = OneAgentSDK.traceIncomingRemoteCall("remoteMethodToCall", "RemoteServiceName", "rmi://Endpoint/service");
+IncomingRemoteCallTracer tracer = OneAgentSDK.traceIncomingRemoteCall("remoteMethodToCall", "RemoteServiceName", "rmi://Endpoint/service");
 
-incomingRemoteCall.setDynatraceStringTag(tag);
-incomingRemoteCall.start();
+tracer.setDynatraceStringTag(tag);
+tracer.start();
 try {
-	incomingRemoteCall.setProtocolName("RMI/custom");
+	tracer.setProtocolName("RMI/custom");
 	doSomeWork();
 } catch (Exception e) {
-	incomingRemoteCall.error(e);
+	tracer.error(e);
 } finally {
-	incomingRemoteCall.end();
+	tracer.end();
 }
 ```
 
@@ -162,7 +166,7 @@ try {
 
 You can use the SDK to trace database requests that Dynatrace doesn't detect automatically. This will not only enable you to see single SQL statements within the traced requests, it will also extend SmartScape to include the traced database in the topology. This in turn will extend the reach of the Dynatrace AI, because it will baseline the behaviour of every single reported SQL statement and alert you on errors or slowdowns down to the single SQL statement.
 
-To trace any kind of database request you first need to create a DatabaseInfo object. The info object represents the database itself.
+To trace any kind of database request you first need to create a `DatabaseInfo` object. The info object represents the database itself.
 
 ```Java
 DatabaseInfo databaseInfo = OneAgentSDK.createDatabaseInfo("myDB", DatabaseVendor.PROGRESS, ChannelType.TCP_IP, "dbHost:1234");
@@ -171,42 +175,85 @@ DatabaseInfo databaseInfo = OneAgentSDK.createDatabaseInfo("myDB", DatabaseVendo
 To trace a specific SQL statement you then need to create a Tracer object.
 
 ```Java
-String sql = "Select name from User";
-DatabaseRequestTracer sqlTracer = OneAgentSDK.traceSQLDatabaseRequest(databaseInfo, sql);
+String stmt = "SELECT name FROM User";
+DatabaseRequestTracer tracer = OneAgentSDK.traceSQLDatabaseRequest(databaseInfo, stmt);
 
-sqlTracer.start();
+tracer.start();
 try {
-	myDB.executeSQL(sql);
+	result = myDB.executeSQL(stmt);
+	tracer.setRowsReturned(result.rows);
 } catch (Exception e) {
-	sqlTracer.error(e);
+	tracer.error(e);
 } finally {
-	sqlTracer.end();
-
+	tracer.end();
 }
 ```
 
 <a name="webrequests"/>
 
-## Trace incoming web requests
+## Trace web requests
+
+<a name="inwebrequests"/>
+
+### Trace incoming web requests
 
 You can use the SDK to trace incoming web requests. This might be useful if Dynatrace does not support the respective web server framework or language.
 
-To trace any kind of incoming web request you first need to create a WebServerInfo object. The info object represents the endpoint of your web server.
+To trace any kind of incoming web request you first need to create a `WebApplicationInfo` object. The info object represents the endpoint of your web server.
 
 ```Java
-WebServerInfo wsInfo = OneAgentSDK.createWebServerInfo("WebShopProduction", "CheckoutService", "/api/service/checkout");
+WebApplicationInfo waInfo = OneAgentSDK.createWebApplicationInfo("WebShopProduction", "CheckoutService", "/api");
 ```
 
 To trace a specific incoming web request you then need to create a Tracer object.
 
 ```Java
-IncomingWebRequestTracer tracer = OneAgentSDK.traceIncomingWebRequest(wsInfo,"https://www.oursupershop.com/api/service/checkout/save","POST")
+IncomingWebRequestTracer tracer = OneAgentSDK.traceIncomingWebRequest(waInfo, "https://www.oursupershop.com/api/checkout", "POST")
 
 tracer.setDynatraceStringTag(tag);
 tracer.start();
 try {
 	int statusCodeReturnedToClient = processWebRequest();
 	tracer.setStatusCode(statusCodeReturnedToClient);
+} catch (Exception e) {
+	tracer.error(e);
+} finally {
+	tracer.end();
+}
+```
+
+
+<a name="outwebrequests"/>
+
+### Trace outgoing web requests
+
+You can use the SDK to trace outgoing web requests. This might be useful if Dynatrace does not support the respective http library or language.
+
+To trace a outgoing web request you need to create a Tracer object. It is important to include the Dynatrace header. This ensures that tagging with our built-in sensor is working.
+
+```Java
+OutgoingWebRequestTracer tracer = oneAgentSdk.traceOutgoingWebRequest(url, "GET");
+tracer.start();
+try {
+	request = MyHttpLibrary.newGetRequest(url);
+	
+	// sending HTTP header OneAgentSDK.DYNATRACE_HTTP_HEADERNAME is necessary for tagging:
+	request.addHeader(OneAgentSDK.DYNATRACE_HTTP_HEADERNAME, tracer.getDynatraceStringTag());
+
+	// provide all request headers to tracer (optional):
+	for (Entry<String, String> entry : request.getHeaders().entrySet()) {
+		tracer.addRequestHeader(entry.getKey(), entry.getValue());
+	}
+	
+	response = request.execute();
+	
+	for (Entry<String, List<String>> entry : response.getHeaders().entrySet()) {
+		for (String value : entry.getValue()) {
+			tracer.addResponseHeader(entry.getKey(), value);
+		}
+	}
+	tracer.setStatusCode(response.getResponseCode());
+	
 } catch (Exception e) {
 	tracer.error(e);
 } finally {
@@ -226,7 +273,7 @@ To link asynchronous execution, you need to create an ``InProcessLink``, where a
 InProcessLink inProcessLink = OneAgentSDK.createInProcessLink();
 ```
 
-The provided inProcessLink must not serialized and can only be used inside the process, where it has been created. It must be used to start tracing where the async execution takes place:
+The provided `InProcessLink` must not be serialized and can only be used inside the process in which it was created. It must be used to start tracing where the async execution takes place:
 
 ```Java
 InProcessLinkTracer tracer = oneAgentSDK.traceInProcessLink(inProcessLink);
@@ -245,7 +292,7 @@ try {
 
 ## Trace messaging
 
-You can use the SDK to trace messages sent or received via messaging system. When tracing messages, we distinguish between:
+You can use the SDK to trace messages sent or received via a messaging system. When tracing messages, we distinguish between:
 
 * sending a message
 * receiving a message
@@ -256,23 +303,23 @@ To trace an outgoing message, the code looks straight forward compared to other 
 ```Java
 MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
 		"requestQueue", MessageDestinationType.QUEUE, ChannelType.TCP_IP, "localhost:4711");
-OutgoingMessageTracer outgoingMessageTracer = oneAgentSDK.traceOutgoingMessage(messagingSystemInfo);
-outgoingMessageTracer.start();
+OutgoingMessageTracer tracer = oneAgentSDK.traceOutgoingMessage(messagingSystemInfo);
+tracer.start();
 try {
 	// transport the dynatrace tag along with the message: 	
 	messageToSend.setHeaderField(
-		OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME, outgoingMessageTracer.getDynatraceStringTag());
+		OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME, tracer.getDynatraceStringTag());
 	theQueue.send(messageToSend);
 	
 	// optional:  add messageid provided from messaging system
-	outgoingMessageTracer.setVendorMessageId(toSend.getMessageId());
+	tracer.setVendorMessageId(messageToSend.getMessageId());
 	// optional:  add correlationId
-	outgoingMessageTracer.setCorrelationId(toSend.correlationId);
+	tracer.setCorrelationId(messageToSend.getCorrelationId());
 } catch (Exception e) {
-	outgoingMessageTracer.error(e.getMessage());
+	tracer.error(e.getMessage());
 	Logger.logError(e);
 } finally {
-	outgoingMessageTracer.end();
+	tracer.end();
 }
 ```
 
@@ -284,32 +331,32 @@ MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo(
 
 // message receiving daemon task:
 while(true) {
-	IncomingMessageReceiveTracer incomingMessageReceiveTracer = 
+	IncomingMessageReceiveTracer receiveTracer = 
 		oneAgentSDK.traceIncomingMessageReceive(messagingSystemInfo);
-	incomingMessageReceiveTracer.start();
+	receiveTracer.start();
 	try {
 		// blocking call - until message is being available:
 		Message queryMessage = theQueue.receive("client queries");
-		IncomingMessageProcessTracer incomingMessageProcessTracer = oneAgentSDK
+		IncomingMessageProcessTracer processTracer = oneAgentSDK
 			.traceIncomingMessageProcess(messagingSystemInfo);
-		incomingMessageProcessTracer.setDynatraceStringTag(
+		processTracer.setDynatraceStringTag(
 			queryMessage.getHeaderField(OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME));
-		incomingMessageProcessTracer.setVendorMessageId(queryMessage.msgId);
-		incomingMessageProcessTracer.setCorrelationId(queryMessage.correlationId);
-		incomingMessageProcessTracer.start();
+		processTracer.setVendorMessageId(queryMessage.getMessageId()); // optional
+		processTracer.setCorrelationId(queryMessage.getCorrelationId()); // optional
+		processTracer.start();
 		try {
 			// do the work ... 
 		} catch (Exception e) {
-			incomingMessageProcessTracer.error(e.getMessage());
+			processTracer.error(e.getMessage());
 			Logger.logError(e);
 		} finally {
-			incomingMessageProcessTracer.end();
+			processTracer.end();
 		}
 	} catch (Exception e) {
-		incomingMessageReceiveTracer.error(e.getMessage());
+		receiveTracer.error(e.getMessage());
 		Logger.logError(e);
 	} finally {
-		incomingMessageReceiveTracer.end();
+		receiveTracer.end();
 	}
 }
 ```
@@ -321,20 +368,20 @@ MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo(
 	"requestQueue", MessageDestinationType.QUEUE, ChannelType.TCP_IP, "localhost:4711");
 
 public void onMessage(Message message) {
-	IncomingMessageProcessTracer incomingMessageProcessTracer = oneAgentSDK
+	IncomingMessageProcessTracer processTracer = oneAgentSDK
 		.traceIncomingMessageProcess(messagingSystemInfo);
-	incomingMessageProcessTracer.setDynatraceStringTag((String)
+	processTracer.setDynatraceStringTag((String)
 		message.getObjectProperty(OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME));
-	incomingMessageProcessTracer.setVendorMessageId(queryMessage.msgId);
-	incomingMessageProcessTracer.setCorrelationId(queryMessage.correlationId);
-	incomingMessageProcessTracer.start();
+	processTracer.setVendorMessageId(queryMessage.getMessageId()); // optional
+	processTracer.setCorrelationId(queryMessage.getCorrelationId()); // optional
+	processTracer.start();
 	try {
 		// do the work ... 
 	} catch (Exception e) {
-		incomingMessageProcessTracer.error(e.getMessage());
+		processTracer.error(e.getMessage());
 		Logger.logError(e);
 	} finally {
-		incomingMessageProcessTracer.end();
+		processTracer.end();
 	}
 }
 ```
@@ -343,7 +390,7 @@ public void onMessage(Message message) {
 
 ## Add custom request attributes
 
-You can use the SDK to add custom request attributes to current traced service. Custom request attributes allow you to do easier/better filtering of your requests in Dynatrace.
+You can use the SDK to add custom request attributes to the currently traced service. Custom request attributes allow you to do easier/better filtering of your requests in Dynatrace.
 
 Adding custom request attributes to the currently traced service call is pretty simple. Just call one of the ``addCustomRequestAttribute`` methods with your key and value:
 
@@ -358,17 +405,15 @@ When no service call is being traced, the custom request attributes are dropped.
 
 # Limits
 
-There are common limits, which will we applied when no other limit is explicitly mentioned.
-
 ## String length
 
 There are different length limits for string parameters:
 
 * SQL statements: default 4096 characters
-* Webrequest related (URI, Query, Hostnames, ...): default 250 characters
-* All other: default 250 characters
+* Web request-related (URI, Query, Hostnames, ...): default 250 characters
+* All others: default 250 characters
 
-Longer strings will be silently truncated. Default might be overriden by tenant specific configuration.
+Longer strings will be silently truncated. Defaults can be overridden by tenant specific configuration.
 
 <a name="troubleshooting"/>
 
@@ -386,7 +431,7 @@ public interface LoggingCallback {
 	void error(String message);
 }
 ```
-In general it is a good idea to forward these logging events to your application specific logging framework.
+It is set using the `setLoggingCallback` method. In general it is a good idea to forward these logging events to your application specific logging framework.
 
 ## Agent log
 
@@ -407,7 +452,7 @@ The Dynatrace OneAgent SDK is an open source project, currently in beta status. 
 * Ask for improvements or changes in the SDK API
 * Ask any questions related to the community effort
 
-SLAs don't apply for GitHub issues
+SLAs don't apply for GitHub issues.
 
 **Customers can open a ticket on the <a href="https://support.dynatrace.com/supportportal/" target="_blank">Dynatrace support portal</a> to:**
 * Get support from the Dynatrace technical support engineering team
