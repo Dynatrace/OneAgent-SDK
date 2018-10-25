@@ -21,6 +21,7 @@ This repository therefore can be considered a language independent documentation
  	 	* [Trace outgoing web requests](#outwebrequests)
  	* [Trace in-process asynchronous execution](#in-process-linking)
  	* [Trace messaging](#messaging)
+ 	* [Trace custom services](#customservice)
  	* [Add custom request attributes](#scav)
 * [Limits](#limits)
 * [Troubleshooting](#troubleshooting)
@@ -384,6 +385,26 @@ public void onMessage(Message message) {
 	} finally {
 		processTracer.end();
 	}
+}
+```
+
+<a name="customservice"/>
+
+## Trace custom services
+
+You can use the SDK to trace custom services. A custom service is a meaningful part of your code that you want to trace but that does not fit any other tracer. An example could be the callback of a periodic timer.
+```Java
+String serviceMethod = "onTimer";
+String serviceName = "PeriodicCleanupTask";
+CustomServiceTracer tracer = oneAgentSDK.traceCustomService(serviceMethod, serviceName);
+tracer.start();
+try {
+	doMyCleanup();
+} catch (Exception e) {
+	tracer.error(e.getMessage());
+	throw e;
+} finally {
+	tracer.end();
 }
 ```
 
