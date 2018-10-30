@@ -209,6 +209,17 @@ public interface OneAgentSDK {
 	 * @return {@link IncomingMessageProcessTracer} to work with
 	 */
 	IncomingMessageProcessTracer traceIncomingMessageProcess(MessagingSystemInfo messagingSystem);
+	
+	/**
+	 * Creates a tracer for a customer transaction (Dynatrace call them Custom service). Used whenever a transaction 
+	 * should be traced, that does not match any of the specialised transaction types (e. g. DB-request, webrequest, ...).
+	 * 
+	 * @param serviceMethod service method being used for service creation.
+	 * @param serviceName service name being used for service creation.
+	 * 
+	 * @return {@link CustomServiceTracer} to work with
+	 */
+	CustomServiceTracer traceCustomService(String serviceMethod, String serviceName);
 
 	// ***** Metrics *****
 	
