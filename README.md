@@ -392,7 +392,8 @@ public void onMessage(Message message) {
 
 ## Trace custom services
 
-You can use the SDK to trace custom services. A custom service is a meaningful part of your code that you want to trace but that does not fit any other tracer. An example could be the callback of a periodic timer.
+You can use the SDK to trace custom service methods. A custom service method is a meaningful part of your code that you want to trace but that does not fit any other tracer. An example could be the callback of a periodic timer.
+
 ```Java
 String serviceMethod = "onTimer";
 String serviceName = "PeriodicCleanupTask";
