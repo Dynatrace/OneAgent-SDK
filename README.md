@@ -50,7 +50,7 @@ The language specific SDKs are open source and published directly to GitHub, tog
 * [OneAgent SDK for Java](https://github.com/Dynatrace/OneAgent-SDK-for-Java)
 * [OneAgent SDK for C/C++](https://github.com/Dynatrace/OneAgent-SDK-for-C)
 * [Early Access - OneAgent SDK for Python](https://github.com/Dynatrace/OneAgent-SDK-for-Python)
-* [Early Access - OneAgent SDK for .NET](https://github.com/Dynatrace/OneAgent-SDK-for-dotnet)
+* [OneAgent SDK for .NET](https://github.com/Dynatrace/OneAgent-SDK-for-dotnet)
 
 The API is available in Java language for reference purposes. See [api folder](https://github.com/Dynatrace/OneAgent-SDK/blob/master/api).
 
