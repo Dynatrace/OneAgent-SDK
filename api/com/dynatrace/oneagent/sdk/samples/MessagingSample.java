@@ -85,6 +85,8 @@ public class MessagingSample {
 			OutgoingMessageTracer outgoingMessageTracer = oneAgentSDK.traceOutgoingMessage(messagingSystemInfo);
 			outgoingMessageTracer.start();
 			try {
+				// transport the Dynatrace tag along with the message to allow the outgoing message tracer to be linked
+				// with the message processing tracer on the receiving side
 				toSend.setHeaderField(OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME, outgoingMessageTracer.getDynatraceStringTag());
 				theQueue.send(toSend);
 				outgoingMessageTracer.setVendorMessageId(toSend.getMessageId()); // optional payload
@@ -104,6 +106,7 @@ public class MessagingSample {
 				Message answer = theQueue.receive(correlationId);
 				
 				IncomingMessageProcessTracer processMessageTracer = oneAgentSDK.traceIncomingMessageProcess(messagingSystemInfo);
+				// retrieve Dynatrace tag created using the outgoing message tracer to link both sides together
 				processMessageTracer.setDynatraceStringTag(answer.getHeaderField(OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME));
 				processMessageTracer.setVendorMessageId(answer.msgId);
 				processMessageTracer.setCorrelationId(answer.correlationId);
@@ -133,6 +136,7 @@ public class MessagingSample {
 		try {
 			Message queryMessage = theQueue.receive("client queries");
 			IncomingMessageProcessTracer processingMessageTracer = oneAgentSDK.traceIncomingMessageProcess(messagingSystemInfo);
+			// retrieve Dynatrace tag created using the outgoing message tracer to link both sides together
 			processingMessageTracer.setDynatraceStringTag(queryMessage.getHeaderField(OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME));
 			processingMessageTracer.setVendorMessageId(queryMessage.msgId);
 			processingMessageTracer.setCorrelationId(queryMessage.correlationId);
@@ -170,6 +174,7 @@ public class MessagingSample {
 					inProcessLinkTracer.start();
 					try {
 						IncomingMessageProcessTracer processingMessageTracer = oneAgentSDK.traceIncomingMessageProcess(messagingSystemInfo);
+						// retrieve Dynatrace tag created using the outgoing message tracer to link both sides together
 						processingMessageTracer.setDynatraceStringTag(queryMessage.getHeaderField(OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME));
 						processingMessageTracer.setVendorMessageId(queryMessage.msgId);
 						processingMessageTracer.setCorrelationId(queryMessage.correlationId);

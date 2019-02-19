@@ -136,7 +136,7 @@ tracer.start();
 try {
 	tracer.setProtocolName("RMI/custom");
 	String tag = tracer.getDynatraceStringTag();
-	// make the call and transport the tag across
+	// make the call and transport the tag across to the server to link both sides of the remote call together
 } catch (Throwable e) {
 	tracer.error(e);
 } finally {
@@ -150,7 +150,7 @@ On the server side you need to wrap the handling and processing of your remote c
 ```Java
 IncomingRemoteCallTracer tracer = OneAgentSDK.traceIncomingRemoteCall("remoteMethodToCall", "RemoteServiceName", "rmi://Endpoint/service");
 
-tracer.setDynatraceStringTag(tag);
+tracer.setDynatraceStringTag(tag); // link both sides of the remote call together
 tracer.start();
 try {
 	tracer.setProtocolName("RMI/custom");
@@ -215,7 +215,7 @@ IncomingWebRequestTracer tracer = OneAgentSDK.traceIncomingWebRequest(waInfo, "h
 tracer.setDynatraceStringTag(tag);
 tracer.start();
 try {
-	int statusCodeReturnedToClient = processWebRequest();
+	int statusCodeReturnedToClient = processWebRequest(); // link both sides of the web request together
 	tracer.setStatusCode(statusCodeReturnedToClient);
 } catch (Exception e) {
 	tracer.error(e);
@@ -308,7 +308,8 @@ MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo(
 OutgoingMessageTracer tracer = oneAgentSDK.traceOutgoingMessage(messagingSystemInfo);
 tracer.start();
 try {
-	// transport the dynatrace tag along with the message: 	
+	// transport the Dynatrace tag along with the message to allow the outgoing message tracer to be linked
+	// with the message processing tracer on the receiving side
 	messageToSend.setHeaderField(
 		OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME, tracer.getDynatraceStringTag());
 	theQueue.send(messageToSend);
@@ -341,6 +342,7 @@ while(true) {
 		Message queryMessage = theQueue.receive("client queries");
 		IncomingMessageProcessTracer processTracer = oneAgentSDK
 			.traceIncomingMessageProcess(messagingSystemInfo);
+		// retrieve Dynatrace tag created using the outgoing message tracer to link both sides together
 		processTracer.setDynatraceStringTag(
 			queryMessage.getHeaderField(OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME));
 		processTracer.setVendorMessageId(queryMessage.getMessageId()); // optional
@@ -372,6 +374,7 @@ MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo(
 public void onMessage(Message message) {
 	IncomingMessageProcessTracer processTracer = oneAgentSDK
 		.traceIncomingMessageProcess(messagingSystemInfo);
+	// retrieve Dynatrace tag created using the outgoing message tracer to link both sides together
 	processTracer.setDynatraceStringTag((String)
 		message.getObjectProperty(OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME));
 	processTracer.setVendorMessageId(queryMessage.getMessageId()); // optional

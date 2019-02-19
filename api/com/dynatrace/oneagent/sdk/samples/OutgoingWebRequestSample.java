@@ -27,6 +27,7 @@ public class OutgoingWebRequestSample {
 		try {
 			Map<String, String> headerFields = new HashMap<>();
 			
+			// add Dynatrace tag to request metadata to allow the agent in the web server to link the request together
 			String tag = outgoingWebRequestTracer.getDynatraceStringTag();
 			headerFields.put(OneAgentSDK.DYNATRACE_HTTP_HEADERNAME, tag);
 			
