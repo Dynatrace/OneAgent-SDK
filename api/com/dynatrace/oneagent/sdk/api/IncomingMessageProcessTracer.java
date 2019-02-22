@@ -14,7 +14,7 @@ public interface IncomingMessageProcessTracer extends IncomingTaggable, Tracer {
 	public void setVendorMessageId(String vendorMessageId);
 
 	/**
-	 * Adds optional information about a traced message: correlation id used by messaging system.
+	 * Adds optional information about a traced message: application provided correlation id.
 	 *  
 	 * @param correlationId correlationId
 	 */
