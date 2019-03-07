@@ -435,11 +435,11 @@ When no service call is being traced, the custom request attributes are dropped.
 
 There are different length limits for string parameters:
 
-* SQL statements: default 4096 characters
-* Web request-related (URI, Query, Hostnames, ...): default 250 characters
+* SQL statements: default 4.096 characters
+* Web request-related (URI, Query, Hostnames, ...): default 4.096 characters
 * All others: default 250 characters
 
-Longer strings will be silently truncated. Defaults can be overridden by tenant specific configuration.
+Longer strings will be silently truncated.
 
 <a name="troubleshooting"/>
 
