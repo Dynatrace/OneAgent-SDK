@@ -466,7 +466,7 @@ In case of issues, where the logging callback doesn't report any errors and the 
 
 # Help & Support
 
-The Dynatrace OneAgent SDK is an open source project. The features are fully supported by Dynatrace. 
+The Dynatrace OneAgent SDK is fully supported by Dynatrace.
 
 **Get Help**
 * Ask a question in the <a href="https://answers.dynatrace.com/spaces/482/view.html" target="_blank">product forums</a>
