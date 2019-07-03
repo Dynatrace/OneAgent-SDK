@@ -466,7 +466,7 @@ In case of issues, where the logging callback doesn't report any errors and the 
 
 # Help & Support
 
-## Support policy
+**Support policy**
 
 The Dynatrace OneAgent SDK has GA status. The features are fully supported by Dynatrace.
 
