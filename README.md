@@ -466,7 +466,13 @@ In case of issues, where the logging callback doesn't report any errors and the 
 
 # Help & Support
 
-The Dynatrace OneAgent SDK is an open source project, currently in beta status. The features are fully supported by Dynatrace. 
+**Support policy**
+
+The Dynatrace OneAgent SDK has GA status. The features are fully supported by Dynatrace.
+
+Deprecations of APIs will be announced in the release notes of the specific OneAgent SDK (e.g. OneAgent SDK for Java release notes). Deprecated APIs can be removed from newer OneAgent SDK versions after having been deprecated for at least 1 year.
+
+End of support announcements for a specific OneAgent SDK version will be announced in the release notes of the specific OneAgent SDK (e.g. OneAgent SDK for Java release notes) at least six months in advance, in the OneAgent release notes as well as on the list of end of support announcements.
 
 **Get Help**
 * Ask a question in the <a href="https://answers.dynatrace.com/spaces/482/view.html" target="_blank">product forums</a>
