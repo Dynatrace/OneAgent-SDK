@@ -29,7 +29,7 @@ This repository therefore can be considered a language independent documentation
 * [Further reading](#furtherreading)
 
 
-<a name="oneagentsdk"/>
+<a name="oneagentsdk"></a>
 
 # Dynatrace OneAgent SDK
 
@@ -40,7 +40,7 @@ In order to use the Dynatrace OneAgent SDK you need to have access to the source
 
 OneAgent automatically detects that your application is instrumented with the OneAgent SDK and immediately begins monitoring it. A restart of the application is required following OneAgent installation on the host. For most languages the SDK does not contain much actual implementation as the real work is done by the Dynatrace OneAgent itself. The SDK just acts as an API to the OneAgent.
 
-<a name="languagesdks"/>
+<a name="languagesdks"></a>
 
 # Language specific SDKs
 
@@ -54,11 +54,11 @@ The language specific SDKs are open source and published directly to GitHub, tog
 
 The API is available in Java language for reference purposes. See [api folder](https://github.com/Dynatrace/OneAgent-SDK/blob/master/api).
 
-<a name="apiconcepts"/>
+<a name="apiconcepts"></a>
 
 # API Concepts
 
-<a name="oneagentsdkobject"/>
+<a name="oneagentsdkobject"></a>
 
 ## OneAgentSDK object
 
@@ -70,7 +70,7 @@ OneAgentSDK oneAgentSDK = OneAgentSDKFactory.createInstance();
 
 You can create more than one object of this in your application. This ensures that you do not need to coordinate a singleton behavior across the whole applications and that different frameworks can use the SDK independently from each other. The OneAgentSDK object enables you to create Tracers for different aspects of your application.
 
-<a name="tracers"/>
+<a name="tracers"></a>
 
 ## Tracers
 
@@ -101,7 +101,7 @@ To allow tracing across process and technology boundaries, tracers can be suppli
 
 A Tracer instance can only be used from the thread on which it was created. See [Trace in-process asynchronous execution](#in-process-linking) for tracing across thread boundaries.
 
-<a name="endpoints"/>
+<a name="endpoints"></a>
 
 ## Service name, service endpoints and communication endpoints
 
@@ -115,13 +115,13 @@ If you can trace the call end-to-end though, the extra information about the com
 
 See <a href="https://www.dynatrace.com/support/help/server-side-services/service-analysis/how-do-i-analyze-individual-service-instances/" target="_blank">How do I analyze service instances?</a> in the Dynatrace product documentation to learn more.
 
-<a name="features"/>
+<a name="features"></a>
 
 # Features
 
 The feature sets differ slightly with each language implementation - see the respective language-specific documentation for feature availability. More functionality will be added over time, see <a href="https://answers.dynatrace.com/spaces/483/dynatrace-product-ideas/idea/198106/planned-features-for-oneagent-sdk.html" target="_blank">Planned features for OneAgent SDK</a> for details on upcoming features.
 
-<a name="remoting"/>
+<a name="remoting"></a>
 
 ## Trace incoming and outgoing remote calls
 
@@ -162,7 +162,7 @@ try {
 }
 ```
 
-<a name="database"/>
+<a name="database"></a>
 
 ## Trace database requests
 
@@ -191,11 +191,11 @@ try {
 }
 ```
 
-<a name="webrequests"/>
+<a name="webrequests"></a>
 
 ## Trace web requests
 
-<a name="inwebrequests"/>
+<a name="inwebrequests"></a>
 
 ### Trace incoming web requests
 
@@ -225,7 +225,7 @@ try {
 ```
 
 
-<a name="outwebrequests"/>
+<a name="outwebrequests"></a>
 
 ### Trace outgoing web requests
 
@@ -263,7 +263,7 @@ try {
 }
 ```
 
-<a name="in-process-linking"/>
+<a name="in-process-linking"></a>
 
 ## Trace in-process asynchronous execution
 
@@ -290,7 +290,7 @@ try {
 }
 ```
 
-<a name="messaging"/>
+<a name="messaging"></a>
 
 ## Trace messaging
 
@@ -391,7 +391,7 @@ public void onMessage(Message message) {
 }
 ```
 
-<a name="customservice"/>
+<a name="customservice"></a>
 
 ## Trace custom services
 
@@ -412,7 +412,7 @@ try {
 }
 ```
 
-<a name="scav"/>
+<a name="scav"></a>
 
 ## Add custom request attributes
 
@@ -427,7 +427,7 @@ oneAgentSDK.addCustomRequestAttribute("salesAmount", 2500);
 
 When no service call is being traced, the custom request attributes are dropped. 
 
-<a name="limits"/>
+<a name="limits"></a>
 
 # Limits
 
@@ -440,7 +440,7 @@ There are different length limits for string parameters:
 
 Longer strings will be silently truncated.
 
-<a name="troubleshooting"/>
+<a name="troubleshooting"></a>
 
 # Troubleshooting
 
@@ -462,7 +462,7 @@ It is set using the `setLoggingCallback` method. In general it is a good idea to
 
 In case of issues, where the logging callback doesn't report any errors and the UI doesn't help: check the [agent log](https://www.dynatrace.com/support/help/installation/setup-tips/where-can-i-find-oneagent-files-and-logs/).
 
-<a name="help"/>
+<a name="help"></a>
 
 # Help & Support
 
@@ -491,7 +491,7 @@ SLAs don't apply for GitHub issues.
 
 SLAs apply according to the customer's support level.
 
-<a name="furtherreading"/>
+<a name="furtherreading"></a>
 
 # Further reading
 
