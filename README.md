@@ -231,7 +231,7 @@ try {
 
 You can use the SDK to trace outgoing web requests. This might be useful if Dynatrace does not support the respective http library or language.
 
-To trace a outgoing web request you need to create a Tracer object. It is important to include the Dynatrace header. This ensures that tagging with our built-in sensor is working.
+To trace an outgoing web request you need to create a Tracer object. It is important to include the Dynatrace header. This ensures that tagging with our built-in sensor is working.
 
 ```Java
 OutgoingWebRequestTracer tracer = oneAgentSdk.traceOutgoingWebRequest(url, "GET");
