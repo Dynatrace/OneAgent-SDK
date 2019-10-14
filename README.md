@@ -20,6 +20,8 @@ This repository therefore can be considered a language independent documentation
     * [Trace outgoing web requests](#outwebrequests)
   * [Trace in-process asynchronous execution](#in-process-linking)
   * [Trace messaging](#messaging)
+    * [Trace outgoing messages](#trace-outgoing-messages)
+    * [Trace incoming messages](#trace-incoming-messages)
   * [Trace custom services](#customservice)
   * [Add custom request attributes](#scav)
 * [Limits](#limits)
@@ -300,8 +302,32 @@ You can use the SDK to trace messages sent or received via a messaging system. W
 * receiving a message
 * processing a received message
 
-To trace an outgoing message, the code looks straight forward compared to other tracers:
- 
+#### Trace outgoing messages
+
+An outgoing message is traced by calling `traceOutgoingMessage()` with a `MessagingSystemInfo` object.  
+This instance of `MessagingSystemInfo` can be created by calling `createMessagingSystemInfo` with the following arguments:
+
+* `vendorName:` Mandatory - the messaging system vendor name (e.g. RabbitMq, Apache Kafka, ...), which can be a user defined
+string. If possible, use a constant defined in `MessageSystemVendor`.
+* `destinationName:` Mandatory - the destination name (e.g. queue name, topic name).
+* `destinationType:` Mandatory - specifies the type of the destination. Valid values are defined by the `MessageDestinationType` enum.
+* `channelType`: Mandatory - A value from  the `ChannelType` enum to specify the protocol used as communication channel (e.g. TCP/IP, IN_PROCESS,... ).
+* `channelEndpoint:` Optional - a string describing the endpoint according to the protocol set in `channelType`:
+  * TCP/IP: Host name or IP address of the server-side, may include the port number (e.g., "1.2.3.4:8080" or "example.com:1234").
+  * UNIX domain sockets: name of the domain socket file.
+  * Named pipes: name of the pipe.
+
+Instances of `MessagingSystemInfo` can and should be reused across tracing calls.
+
+The result of `traceIncomingMessage()` is a tracer object to be used for further operations related to this particular trace
+(see [Tracers](#tracers) for details).
+
+Besides the common APIs for outgoing tracers, this tracer offers the additional methods `setVendorMessageId()` and
+`setCorrelationId()` which may be used to provide more details about the sent message. Both APIs take a string as a parameter
+which may be used to report the `correlationId` or `vendorMessageId` provided by the messaging system.
+
+**Example:**
+
 ```Java
 MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
 		"requestQueue", MessageDestinationType.QUEUE, ChannelType.TCP_IP, "localhost:4711");
@@ -326,7 +352,23 @@ try {
 }
 ```
 
-On the incoming side, we need to differentiate between the blocking receiving part and processing the received message. Therefore two different tracers are being used: ``ReceivingMessageTracer`` and ``ProcessingMessageTracer``.
+#### Trace incoming messages
+
+On the incoming side, we need to distinguish between the blocking receive operation and the processing of the received message.
+Therefore two different tracers are being used: `IncomingMessageReceiveTracer` and `IncomingMessageProcessTracer`.
+
+An instance of `IncomingMessageReceiveTracer` is created by calling `traceIncomingMessageReceive` and similarly,
+`traceIncomingMessageProcess` must be called to get an instance of `IncomingMessageProcessTracer`.
+
+Both functions expect an argument of type `MessagingSystemInfo` which is created in the same way as
+[for outgoing messages](#trace-outgoing-messages).
+
+The result of both `traceIncomingMessageReceive` and `traceIncomingMessageProcess` are tracer objects to be used for further operations related to this trace (see [Tracers](#tracers) for details).
+
+Besides the common APIs for incoming tracers, an instance of `IncomingMessageProcessTracer` offers the same additional
+methods `setVendorMessageId()` and `setCorrelationId()` as described for [for outgoing messages](#trace-outgoing-messages).
+
+**Example:**
 
 ```Java
 MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
@@ -365,7 +407,10 @@ while(true) {
 }
 ```
 
-In case of non-blocking receive (e. g. via eventhandler), there is no need to use ``ReceivingMessageTracer`` - just trace processing of the message by using the ``ProcessingMessageTracer``:
+In case of a non-blocking receive operation (e.g. via an event handler), there is no need to
+use `IncomingMessageReceiveTracer` - just trace the processing of the message by using `IncomingMessageProcessTracer`:
+
+**Example:**
 
 ```Java
 MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myMessagingSystem",
