@@ -189,6 +189,9 @@ try {
 }
 ```
 
+Please note that SQL database traces are only created if they occur within some other SDK trace (e.g. incoming remote call)
+or a OneAgent built-in trace (e.g. incoming web request).
+
 <a name="webrequests"></a>
 
 ### Trace web requests
