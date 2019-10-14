@@ -4,45 +4,43 @@ This repository contains the specification of the Dynatrace OneAgent SDK. All in
 
 This repository therefore can be considered a language independent documentation of the SDK's APIs and concepts.
 
-
-#### Table of Contents
+## Table of Contents
 
 * [Dynatrace OneAgent SDK](#oneagentsdk)  
 * [Language specific SDKs](#languagesdks)
 * [API Concepts](#apiconcepts)
-	* [OneAgentSDK object](#oneagentsdkobject)
-	* [Tracers](#tracers)
-	* [Service endpoints and communication endpoints](#endpoints)
+  * [OneAgentSDK object](#oneagentsdkobject)
+  * [Tracers](#tracers)
+  * [Service endpoints and communication endpoints](#endpoints)
 * [Features](#features)
- 	* [Trace incoming and outgoing remote calls](#remoting)
- 	* [Trace database requests](#database)
- 	* [Trace web requests](#webrequests)
- 	 	* [Trace incoming web requests](#inwebrequests)
- 	 	* [Trace outgoing web requests](#outwebrequests)
- 	* [Trace in-process asynchronous execution](#in-process-linking)
- 	* [Trace messaging](#messaging)
- 	* [Trace custom services](#customservice)
- 	* [Add custom request attributes](#scav)
+  * [Trace incoming and outgoing remote calls](#remoting)
+  * [Trace database requests](#database)
+  * [Trace web requests](#webrequests)
+    * [Trace incoming web requests](#inwebrequests)
+    * [Trace outgoing web requests](#outwebrequests)
+  * [Trace in-process asynchronous execution](#in-process-linking)
+  * [Trace messaging](#messaging)
+  * [Trace custom services](#customservice)
+  * [Add custom request attributes](#scav)
 * [Limits](#limits)
 * [Troubleshooting](#troubleshooting)
 * [Help & Support](#help)
 * [Further reading](#furtherreading)
 
-
 <a name="oneagentsdk"></a>
 
-# Dynatrace OneAgent SDK
+## Dynatrace OneAgent SDK
 
 The Dynatrace OneAgent SDK can be used to add custom instrumentation for proprietary frameworks or programming languages that are not supported out-of-the-box by Dynatrace. The primary purpose of this SDK is to facilitate end-to-end tracing of transactions.
 While other tracing frameworks are rather generic, the Dynatrace OneAgent SDK has more semantics to explicitly model remote calls, database requests, web requests, message passing, in-process context passing and more.
 
-In order to use the Dynatrace OneAgent SDK you need to have access to the source code of the application in question. In languages like Java and Node.js you might have other possibilities to use the SDK even if you do not want or cannot modify the original code (aspects and monkey patching). 
+In order to use the Dynatrace OneAgent SDK you need to have access to the source code of the application in question. In languages like Java and Node.js you might have other possibilities to use the SDK even if you do not want or cannot modify the original code (aspects and monkey patching).
 
 OneAgent automatically detects that your application is instrumented with the OneAgent SDK and immediately begins monitoring it. A restart of the application is required following OneAgent installation on the host. For most languages the SDK does not contain much actual implementation as the real work is done by the Dynatrace OneAgent itself. The SDK just acts as an API to the OneAgent.
 
 <a name="languagesdks"></a>
 
-# Language specific SDKs
+## Language specific SDKs
 
 The language specific SDKs are open source and published directly to GitHub, together with technical documentation and sample code.
 
@@ -56,7 +54,7 @@ The API is available in Java language for reference purposes. See [api folder](h
 
 <a name="apiconcepts"></a>
 
-# API Concepts
+## API Concepts
 
 <a name="oneagentsdkobject"></a>
 
@@ -117,13 +115,13 @@ See <a href="https://www.dynatrace.com/support/help/server-side-services/service
 
 <a name="features"></a>
 
-# Features
+## Features
 
 The feature sets differ slightly with each language implementation - see the respective language-specific documentation for feature availability. More functionality will be added over time, see <a href="https://answers.dynatrace.com/spaces/483/dynatrace-product-ideas/idea/198106/planned-features-for-oneagent-sdk.html" target="_blank">Planned features for OneAgent SDK</a> for details on upcoming features.
 
 <a name="remoting"></a>
 
-## Trace incoming and outgoing remote calls
+### Trace incoming and outgoing remote calls
 
 You can use the SDK to trace proprietary IPC communication from one process to the other. This will enable you to see full Service Flow, PurePath and Smartscape topology for remoting technologies that Dynatrace is not aware of.
 
@@ -164,7 +162,7 @@ try {
 
 <a name="database"></a>
 
-## Trace database requests
+### Trace database requests
 
 You can use the SDK to trace database requests that Dynatrace doesn't detect automatically. This will not only enable you to see single SQL statements within the traced requests, it will also extend SmartScape to include the traced database in the topology. This in turn will extend the reach of the Dynatrace AI, because it will baseline the behaviour of every single reported SQL statement and alert you on errors or slowdowns down to the single SQL statement.
 
@@ -193,11 +191,11 @@ try {
 
 <a name="webrequests"></a>
 
-## Trace web requests
+### Trace web requests
 
 <a name="inwebrequests"></a>
 
-### Trace incoming web requests
+#### Trace incoming web requests
 
 You can use the SDK to trace incoming web requests. This might be useful if Dynatrace does not support the respective web server framework or language.
 
@@ -224,10 +222,9 @@ try {
 }
 ```
 
-
 <a name="outwebrequests"></a>
 
-### Trace outgoing web requests
+#### Trace outgoing web requests
 
 You can use the SDK to trace outgoing web requests. This might be useful if Dynatrace does not support the respective http library or language.
 
@@ -238,7 +235,7 @@ OutgoingWebRequestTracer tracer = oneAgentSdk.traceOutgoingWebRequest(url, "GET"
 tracer.start();
 try {
 	request = MyHttpLibrary.newGetRequest(url);
-	
+
 	// sending HTTP header OneAgentSDK.DYNATRACE_HTTP_HEADERNAME is necessary for tagging:
 	request.addHeader(OneAgentSDK.DYNATRACE_HTTP_HEADERNAME, tracer.getDynatraceStringTag());
 
@@ -246,16 +243,16 @@ try {
 	for (Entry<String, String> entry : request.getHeaders().entrySet()) {
 		tracer.addRequestHeader(entry.getKey(), entry.getValue());
 	}
-	
+
 	response = request.execute();
-	
+
 	for (Entry<String, List<String>> entry : response.getHeaders().entrySet()) {
 		for (String value : entry.getValue()) {
 			tracer.addResponseHeader(entry.getKey(), value);
 		}
 	}
 	tracer.setStatusCode(response.getResponseCode());
-	
+
 } catch (Exception e) {
 	tracer.error(e);
 } finally {
@@ -265,9 +262,9 @@ try {
 
 <a name="in-process-linking"></a>
 
-## Trace in-process asynchronous execution
+### Trace in-process asynchronous execution
 
-You can use the SDK to trace asynchronous in-process code execution. This might be useful if the OneAgent does not support the threading framework or specific asynchronous libraries. In-process-linking should be used to link other services (Database, Webrequests, ...) between thread or queueing boundaries currently not supported out-of-the-box by the OneAgent.
+You can use the SDK to trace asynchronous in-process code execution. This might be useful if the OneAgent does not support the threading framework or specific asynchronous libraries. In-process-linking should be used to link other services (Database, web requests, ...) between thread or queueing boundaries currently not supported out-of-the-box by the OneAgent.
 
 To link asynchronous execution, you need to create an ``InProcessLink``, where async execution forks:
 
@@ -292,7 +289,7 @@ try {
 
 <a name="messaging"></a>
 
-## Trace messaging
+### Trace messaging
 
 You can use the SDK to trace messages sent or received via a messaging system. When tracing messages, we distinguish between:
 
@@ -313,7 +310,7 @@ try {
 	messageToSend.setHeaderField(
 		OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME, tracer.getDynatraceStringTag());
 	theQueue.send(messageToSend);
-	
+
 	// optional:  add messageid provided from messaging system
 	tracer.setVendorMessageId(messageToSend.getMessageId());
 	// optional:  add correlationId
@@ -334,7 +331,7 @@ MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo(
 
 // message receiving daemon task:
 while(true) {
-	IncomingMessageReceiveTracer receiveTracer = 
+	IncomingMessageReceiveTracer receiveTracer =
 		oneAgentSDK.traceIncomingMessageReceive(messagingSystemInfo);
 	receiveTracer.start();
 	try {
@@ -349,7 +346,7 @@ while(true) {
 		processTracer.setCorrelationId(queryMessage.getCorrelationId()); // optional
 		processTracer.start();
 		try {
-			// do the work ... 
+			// do the work ...
 		} catch (Exception e) {
 			processTracer.error(e.getMessage());
 			Logger.logError(e);
@@ -381,7 +378,7 @@ public void onMessage(Message message) {
 	processTracer.setCorrelationId(queryMessage.getCorrelationId()); // optional
 	processTracer.start();
 	try {
-		// do the work ... 
+		// do the work ...
 	} catch (Exception e) {
 		processTracer.error(e.getMessage());
 		Logger.logError(e);
@@ -393,7 +390,7 @@ public void onMessage(Message message) {
 
 <a name="customservice"></a>
 
-## Trace custom services
+### Trace custom services
 
 You can use the SDK to trace custom service methods. A custom service method is a meaningful part of your code that you want to trace but that does not fit any other tracer. An example could be the callback of a periodic timer.
 
@@ -414,7 +411,7 @@ try {
 
 <a name="scav"></a>
 
-## Add custom request attributes
+### Add custom request attributes
 
 You can use the SDK to add custom request attributes to the currently traced service. Custom request attributes allow you to do easier/better filtering of your requests in Dynatrace.
 
@@ -425,13 +422,12 @@ oneAgentSDK.addCustomRequestAttribute("region", "EMEA");
 oneAgentSDK.addCustomRequestAttribute("salesAmount", 2500);
 ```
 
-When no service call is being traced, the custom request attributes are dropped. 
+When no service call is being traced, the custom request attributes are dropped.
 
-<a name="limits"></a>
 
-# Limits
+## Limits
 
-## String length
+### String length
 
 There are different length limits for string parameters:
 
@@ -442,9 +438,9 @@ Longer strings will be silently truncated.
 
 <a name="troubleshooting"></a>
 
-# Troubleshooting
+## Troubleshooting
 
-## Logging callback
+### Logging callback
 
 The SDK provides a logging-callback to give information back to the calling application in case of an error. The user application has to provide a callback like the following:
 
@@ -456,17 +452,18 @@ public interface LoggingCallback {
 	void error(String message);
 }
 ```
+
 It is set using the `setLoggingCallback` method. In general it is a good idea to forward these logging events to your application specific logging framework.
 
-## Agent log
+### Agent log
 
 In case of issues, where the logging callback doesn't report any errors and the UI doesn't help: check the [agent log](https://www.dynatrace.com/support/help/installation/setup-tips/where-can-i-find-oneagent-files-and-logs/).
 
 <a name="help"></a>
 
-# Help & Support
+## Help & Support
 
-**Support policy**
+### Support policy
 
 The Dynatrace OneAgent SDK has GA status. The features are fully supported by Dynatrace.
 
@@ -474,11 +471,13 @@ Deprecations of APIs will be announced in the release notes of the specific OneA
 
 End of support announcements for a specific OneAgent SDK version will be announced in the release notes of the specific OneAgent SDK (e.g. OneAgent SDK for Java release notes) at least six months in advance, in the OneAgent release notes as well as on the list of end of support announcements.
 
-**Get Help**
+### Get Help
+
 * Ask a question in the <a href="https://answers.dynatrace.com/spaces/482/view.html" target="_blank">product forums</a>
 * Read the <a href="https://www.dynatrace.com/support/help/" target="_blank">product documentation</a>
 
 **Open a GitHub issue to:**
+
 * Report minor defects, minor items or typos
 * Ask for improvements or changes in the SDK API
 * Ask any questions related to the community effort
@@ -486,6 +485,7 @@ End of support announcements for a specific OneAgent SDK version will be announc
 SLAs don't apply for GitHub issues.
 
 **Customers can open a ticket on the <a href="https://support.dynatrace.com/supportportal/" target="_blank">Dynatrace support portal</a> to:**
+
 * Get support from the Dynatrace technical support engineering team
 * Manage and resolve product related technical issues
 
@@ -493,7 +493,7 @@ SLAs apply according to the customer's support level.
 
 <a name="furtherreading"></a>
 
-# Further reading
+## Further reading
 
 * <a href="https://www.dynatrace.com/support/help/extend-dynatrace/oneagent-sdk/what-is-oneagent-sdk/" target="_blank">What is the OneAgent SDK?</a> in the Dynatrace documentation
 * <a href="https://answers.dynatrace.com/spaces/483/dynatrace-product-ideas/idea/198106/planned-features-for-oneagent-sdk.html" target="_blank">Feedback & Roadmap thread in AnswerHub</a>
