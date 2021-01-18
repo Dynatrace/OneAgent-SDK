@@ -24,7 +24,6 @@ This repository therefore can be considered a language independent documentation
     * [Trace incoming messages](#trace-incoming-messages)
   * [Trace custom services](#customservice)
   * [Add custom request attributes](#scav)
-  * [Metrics](#metrics)
 * [Limits](#limits)
 * [Troubleshooting](#troubleshooting)
 * [Help & Support](#help)
@@ -472,39 +471,6 @@ oneAgentSDK.addCustomRequestAttribute("salesAmount", 2500);
 ```
 
 When no service call is being traced, the custom request attributes are dropped.
-
-### Metrics
-
-The metrics API is currently part of a preview program and will not work for users outside of the preview program.
-Visit [Dynatrace Help](https://www.dynatrace.com/support/help/whats-new/preview-and-early-adopter-releases) for details.
-
-The SDK supports two **metric value types**: `Integer` and `Float` (double precision floating point).
-You should prefer integer metrics as they are more efficient, unless the loss of precision is unacceptable (but
-consider using a different unit, e.g. integer microseconds instead of floating point seconds).
-
-There are different **kinds of metrics**:
-
-* **Counter**: For all metrics that are counting something like sent/received bytes to/from network.
-Counters should only be used when tracking things in flow, as opposed to state. It reports the `sum`
-only and is the most lightweight metric kind.
-* **Gauge**: For metrics that periodically sample a current state, e.g. temperatures, total number
-of bytes stored on a disk. Gauges report a `min`, `max` and `average` value (but no `sum`).
-* **Statistics**: For event-driven metrics like the packet size of a network interface. This is the most
-resource-intensive metric. Reports `min`, `max`, `average` and `count`.
-
-Each combination of metric value type and kind has its own create-function, named `create<ValueType><MetricKind>Metric` (e.g. `createIntegerCounterMetric`).
-
-When creating a metric, the following information needs to be provided:
-
-* `metricKey:` Mandatory - a string identifying the metric.
-Although it is not recommended, you may create multiple metric instances with the same name, as long as you use the same creation function (metric value type and kind are the same) and the same options.
-Otherwise, using the same metric name multiple times is an error.
-All metrics with the same name will be aggregated together as if you used only one metric instance.  
-The encoding of the key string can be UTF-8, UTF-16 or ASCII, but only ASCII-compatible characters are allowed.  
-It must not be longer than 100 characters.
-* `unit:` Optional - a string that will be displayed when browsing for metrics in the Dynatrace UI.
-* `dimensionName:` Optional - a string specifying the name of the dimension added to the metric.
-If a name is given here, it's required to set a dimension value during adding samples to the metric. A dimension is like an additional label attached to values, for example a "disk.written.bytes" metric could have a dimension name of "disk-id" and when adding values to it a dimension value would be "/dev/sda1".
 
 ## Limits
 
