@@ -9,12 +9,6 @@ import com.dynatrace.oneagent.sdk.api.enums.OneAgentInfo;
 import com.dynatrace.oneagent.sdk.api.infos.DatabaseInfo;
 import com.dynatrace.oneagent.sdk.api.infos.WebApplicationInfo;
 import com.dynatrace.oneagent.sdk.api.infos.MessagingSystemInfo;
-import com.dynatrace.oneagent.sdk.api.metric.FloatCounter;
-import com.dynatrace.oneagent.sdk.api.metric.FloatGauge;
-import com.dynatrace.oneagent.sdk.api.metric.FloatStatistics;
-import com.dynatrace.oneagent.sdk.api.metric.IntegerCounter;
-import com.dynatrace.oneagent.sdk.api.metric.IntegerGauge;
-import com.dynatrace.oneagent.sdk.api.metric.IntegerStatistics;
 
 /**
  * Interface implemented by OneAgentSDK. Retrieved by {@link OneAgentSDKFactory#createInstance()}. For details see:
@@ -220,79 +214,6 @@ public interface OneAgentSDK {
 	 * @return {@link CustomServiceTracer} to work with
 	 */
 	CustomServiceTracer traceCustomService(String serviceMethod, String serviceName);
-
-	// ***** Metrics *****
-	
-	/**
-	 * Creates a counter metric instance. Counter used for all metrics, that are counting something like sent/received bytes to/from network.
-	 * 
-	 * Counter sums up provided samples and reports the sum only.
-	 * 
-	 * All metrics created with same values for metricKey and dimension will be aggregated locally. Aggregated metrics sent in 60 
-	 * second wall clock interval to server.
-	 * 
-	 * @param metricKey	path like name of metric with unit-name as last part. e. g. 
-	 *					<ul>
-	 * 						<li>"disk.written.bytes"</li>
-	 * 						<li>"page.hits"</li>
-	 * 					</ul>
-	 * 					maximum length of metricKey is 100 char and must match the following pattern:
-	 * 					<BLOCKQUOTE>
-	 * 						PackageComponent: [a-zA-Z][a-zA-Z0-9_-]*
-	 * 						MetricKey: PackageComponent { "." PackageComponent }
-	 * 					</BLOCKQUOTE> 
-	 * 					If metricKey doesn't match this pattern, it will be ignored.
-	 * @return the metric instance being used for reporting. Returned instances are thread safe and should be reused whenever possible.
-	 * 					Calling this method twice or more with same metric key might return same instance.
-	 */
-	IntegerCounter createIntegerCounterMetric(String metricKey);
-	
-	/**
-	 * Floating point variant of {@link #createIntegerCounterMetric(String)}.
-	 * 
-	 * @param metricKey same restrictions apply as for metricKey in {@link #createIntegerCounterMetric(String)}
-	 * @return For details see return value of {@link #createIntegerCounterMetric(String)}.
-	 */
-	FloatCounter createFloatCounterMetric(String metricKey);
-
-	/**
-	 * Creates a gauge metric instance. Gauges can be used for metrics describing a current state like 
-	 * temperature, number of items in a cache.
-	 * 
-	 * Gauges are intended for periodical sampling and reporting min, max and average of provided samples.
-	 * 
-	 * @param metricKey same restrictions apply as for metricKey in {@link #createIntegerCounterMetric(String)}
-	 * @return For details see return value of {@link #createIntegerCounterMetric(String)}.
-	 */
-	IntegerGauge createIntegerGaugeMetric(String metricKey);
-
-	/**
-	 * Floating point variant of {@link #createIntegerGaugeMetric(String)}.
-	 *  
-	 * @param metricKey same restrictions apply as for metricKey in {@link #createIntegerCounterMetric(String)}
-	 * @return For details see return value of {@link #createIntegerCounterMetric(String)}.
-	 */
-	FloatGauge createFloatGaugeMetric(String metricKey);
-	
-	/**
-	 * Creates a statistics metric instance. Statistics can/should be used for event driven metrics like 
-	 * packet size of network interface.
-	 * 
-	 * Statistics are reporting min, max, average and count.
-	 * 
-	 * @param metricKey same restrictions apply as for metricKey in {@link #createIntegerCounterMetric(String)}
-	 * @return For details see return value of {@link #createIntegerCounterMetric(String)}.
-	 * 
-	 */
-	IntegerStatistics createIntegerStatisticsMetric(String metricKey);
-
-	/**
-	 * Floating point variant of {@link #createIntegerStatisticsMetric(String)}.
-	 *  
-	 * @param metricKey same restrictions apply as for metricKey in {@link #createIntegerCounterMetric(String)}
-	 * @return For details see return value of {@link #createIntegerCounterMetric(String)}.
-	 */
-	FloatStatistics createFloatStatisticsMetric(String metricKey);
 	
 	// ***** various *****
 
