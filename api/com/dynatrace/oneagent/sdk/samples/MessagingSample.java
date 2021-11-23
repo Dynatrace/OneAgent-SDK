@@ -36,6 +36,9 @@ public class MessagingSample {
 			return new Message("receivedMessage", correlationId);
 		}
 
+		public Message[] receiveBulk(String correlationId) {
+			return new Message[] { new Message("receivedMessage", correlationId) };
+		}
 	}
 
 	private static class Message {
@@ -200,6 +203,40 @@ public class MessagingSample {
 			receivingMessageTracer.end();
 		}
 	}
+
+	public static void doBulkReceiveWithSyncProcessing() {
+		MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myCreativeMessagingSystem",
+				"theOnlyQueue", MessageDestinationType.QUEUE, ChannelType.TCP_IP, "localhost:4711");
+
+		
+		IncomingMessageReceiveTracer receivingMessageTracer = oneAgentSDK.traceIncomingMessageReceive(messagingSystemInfo);
+		receivingMessageTracer.start();
+		try {
+			Message[] queryMessages = theQueue.receiveBulk("client queries");
+			
+			for(Message queryMessage : queryMessages) {
+				IncomingMessageProcessTracer processingMessageTracer = oneAgentSDK.traceIncomingMessageProcess(messagingSystemInfo);
+				// retrieve Dynatrace tag created using the outgoing message tracer to link both sides together
+				processingMessageTracer.setDynatraceStringTag(queryMessage.getHeaderField(OneAgentSDK.DYNATRACE_MESSAGE_PROPERTYNAME));
+				processingMessageTracer.setVendorMessageId(queryMessage.msgId);
+				processingMessageTracer.setCorrelationId(queryMessage.correlationId);
+				processingMessageTracer.start();
+				try {
+					doServerSideMessageProcessing(queryMessage);
+				} catch (Exception e) {
+					processingMessageTracer.error(e.getMessage());
+				} finally {
+					processingMessageTracer.end();
+				}
+			}
+			
+		} catch (Exception e) {
+			receivingMessageTracer.error(e.getMessage());
+		} finally {
+			receivingMessageTracer.end();
+		}
+	}
+	
 
 	public static void doServerSideMessageProcessing(Message queryMessage) {
 		MessagingSystemInfo messagingSystemInfo = oneAgentSDK.createMessagingSystemInfo("myCreativeMessagingSystem",

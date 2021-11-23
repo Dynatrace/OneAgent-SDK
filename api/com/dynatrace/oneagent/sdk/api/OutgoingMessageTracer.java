@@ -12,12 +12,12 @@ public interface OutgoingMessageTracer extends Tracer, OutgoingTaggable {
 	 * @param vendorMessageId the messageId
 	 */
 	public void setVendorMessageId(String vendorMessageId);
-	
+
 	/**
 	 * Adds optional information about a traced message: correlation id used by messaging system.
 	 *  
 	 * @param correlationId correlationId
 	 */
 	public void setCorrelationId(String correlationId);
-	
+
 }

@@ -15,7 +15,8 @@ public enum MessageSystemVendor {
 	WEBSPHERE("WebSphere"),
 	MQSERIES_JMS("MQSeries JMS"),
 	MQSERIES("MQSeries"),
-	TIBCO("Tibco");
+	TIBCO("Tibco"),
+	KAFKA("Apache Kafka");
 	
 	private String vendorName;
 	

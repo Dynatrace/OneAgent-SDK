@@ -68,7 +68,22 @@ All interactions with the OneAgentSDK are done via a central interface. You can 
 OneAgentSDK oneAgentSDK = OneAgentSDKFactory.createInstance();
 ```
 
-You can create more than one object of this in your application. This ensures that you do not need to coordinate a singleton behavior across the whole applications and that different frameworks can use the SDK independently from each other. The OneAgentSDK object enables you to create Tracers for different aspects of your application.
+You can create more than one object of this in your application. This ensures that you do not need to coordinate a singleton behavior across the whole application and that different frameworks can use the SDK independently from each other. The OneAgentSDK object enables you to create Tracers for different aspects of your application.
+
+<a name="tracecontext"></a>
+
+## Trace Context
+
+An instance of the `OneAgentSDK` provides access to the *Trace-Id* and *Span-Id* information
+of the current PurePath node. This information can then be used to provide e.g. additional
+context in log messages.
+
+```Java
+TraceContextInfo traceContextInfo = oneAgentSDK.getTraceContextInfo();
+String traceId = getTraceContextInfo.getTraceId();
+String spanId = getTraceContextInfo.getSpanId();
+logger.info("[!dt dt.trace_id={},dt.span_id={}] sending request ...", traceId, spanId);
+```
 
 <a name="tracers"></a>
 
