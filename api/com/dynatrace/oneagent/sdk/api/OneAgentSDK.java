@@ -5,10 +5,11 @@ import com.dynatrace.oneagent.sdk.api.enums.ChannelType;
 import com.dynatrace.oneagent.sdk.api.enums.MessageDestinationType;
 import com.dynatrace.oneagent.sdk.api.enums.MessageSystemVendor;
 import com.dynatrace.oneagent.sdk.api.enums.SDKState;
-import com.dynatrace.oneagent.sdk.api.enums.OneAgentInfo;
 import com.dynatrace.oneagent.sdk.api.infos.DatabaseInfo;
-import com.dynatrace.oneagent.sdk.api.infos.WebApplicationInfo;
 import com.dynatrace.oneagent.sdk.api.infos.MessagingSystemInfo;
+import com.dynatrace.oneagent.sdk.api.infos.OneAgentInfo;
+import com.dynatrace.oneagent.sdk.api.infos.WebApplicationInfo;
+import com.dynatrace.oneagent.sdk.api.infos.TraceContextInfo;
 
 /**
  * Interface implemented by OneAgentSDK. Retrieved by {@link OneAgentSDKFactory#createInstance()}. For details see:
@@ -106,7 +107,7 @@ public interface OneAgentSDK {
 	 * @param serviceEndpoint	logical deployment endpoint on the server side
 	 *							In case of a clustered/load balanced service, the serviceEndpoint represents the common logical endpoint (e.g. registry://staging-environment/myservices/serviceA) where as the @channelEndpoint represents the actual communication endpoint. As such a single serviceEndpoint can have many channelEndpoints.
 	 * @param channelType		communication protocol used by remote call
-	 * @param channelEndpoint	this represents the communication endpoint for the remote service. This information allows Dynatrace to tie the database requests to a specific process or cloud service. It is optional.
+	 * @param channelEndpoint	this represents the communication endpoint for the remote service. It is optional.
 	 * 							* for TCP/IP: host name/IP of the server-side (can include port)
 	 * 							* for UNIX domain sockets: path of domain socket file
 	 * 							* for named pipes: name of pipe
@@ -162,7 +163,7 @@ public interface OneAgentSDK {
 	 * Does exactly the same as {@link #addCustomRequestAttribute(String, String)}, but request-attribute type double.
 	 */
 	void addCustomRequestAttribute(String key, double value);
-	
+
 	// ***** Messaging (outgoing & incoming) *****
 
 	/**
@@ -189,7 +190,7 @@ public interface OneAgentSDK {
 	OutgoingMessageTracer traceOutgoingMessage(MessagingSystemInfo messagingSystem);
 
 	/**
-	 * Creates tracer for an incoming asynchronous message (receive).
+	 * Creates a tracer for an incoming asynchronous message (blocking receive).
 	 * 
 	 * @param messagingSystem	information about the messaging system (see createMessagingSystemInfo methods).
 	 * @return {@link IncomingMessageReceiveTracer} to work with
@@ -197,7 +198,7 @@ public interface OneAgentSDK {
 	IncomingMessageReceiveTracer traceIncomingMessageReceive(MessagingSystemInfo messagingSystem);
 	
 	/**
-	 * Creates tracer for processing (consuming) an received message (onMessage).
+	 * Creates a tracer for processing (consuming) a received message (onMessage).
 	 * 
 	 * @param messagingSystem	information about the messaging system (see createMessagingSystemInfo methods).
 	 * @return {@link IncomingMessageProcessTracer} to work with
@@ -214,7 +215,7 @@ public interface OneAgentSDK {
 	 * @return {@link CustomServiceTracer} to work with
 	 */
 	CustomServiceTracer traceCustomService(String serviceMethod, String serviceName);
-	
+
 	// ***** various *****
 
 	/**
@@ -239,4 +240,11 @@ public interface OneAgentSDK {
      */
     void setLoggingCallback(LoggingCallback loggingCallback);
 
+    /**
+     * Returns information about the current PurePath node using the TraceContext
+		 * (Trace-Id, Span-Id) model as defined in https://www.w3.org/TR/trace-context.
+		 *  
+     * @return see {@link TraceContextInfo} for more details. Never returns null.
+     */
+    TraceContextInfo getTraceContextInfo();
 }

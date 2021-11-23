@@ -26,11 +26,14 @@ public class OutgoingWebRequestSample {
 		outgoingWebRequestTracer.start();
 		try {
 			Map<String, String> headerFields = new HashMap<>();
-			
-			// add Dynatrace tag to request metadata to allow the agent in the web server to link the request together
-			String tag = outgoingWebRequestTracer.getDynatraceStringTag();
-			headerFields.put(OneAgentSDK.DYNATRACE_HTTP_HEADERNAME, tag);
-			
+
+			// add the Dynatrace tag or W3C Trace Context (based on your configuration) to request headers to allow
+			// the agent in the web server to link the request together for end-to-end tracing
+			// Option 1: passing a stateful lambda, directly accessing 'headerFields'
+			outgoingWebRequestTracer.injectTracingHeaders((key, value, _carrier) -> headerFields.put(key, value), null);
+			// Option 2: passing a stateless implementation, which gets 'headerFields' passed as carrier
+			outgoingWebRequestTracer.injectTracingHeaders((key, value, carrier) -> carrier.put(key, value), headerFields);
+
 			outgoingWebRequestTracer.setStatusCode(executeHttpGetRequest(url, headerFields));
 		} catch (Exception e) {
 			outgoingWebRequestTracer.error(e.getMessage());

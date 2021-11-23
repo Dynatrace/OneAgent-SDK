@@ -2,7 +2,7 @@ package com.dynatrace.oneagent.sdk.samples;
 
 import com.dynatrace.oneagent.sdk.OneAgentSDKFactory;
 import com.dynatrace.oneagent.sdk.api.OneAgentSDK;
-import com.dynatrace.oneagent.sdk.api.enums.OneAgentInfo;
+import com.dynatrace.oneagent.sdk.api.infos.OneAgentInfo;
 
 /**
  * This sample shows the general usage of the SDK:
