@@ -85,8 +85,8 @@ built-in OneAgent sensors take care of linking services correctly.
 
 ```Java
 TraceContextInfo traceContextInfo = oneAgentSDK.getTraceContextInfo();
-String traceId = getTraceContextInfo.getTraceId();
-String spanId = getTraceContextInfo.getSpanId();
+String traceId = traceContextInfo.getTraceId();
+String spanId = traceContextInfo.getSpanId();
 logger.info("[!dt dt.trace_id={},dt.span_id={}] sending request ...", traceId, spanId);
 ```
 
