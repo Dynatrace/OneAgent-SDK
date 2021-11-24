@@ -10,6 +10,7 @@ This repository therefore can be considered a language independent documentation
 * [Language specific SDKs](#languagesdks)
 * [API Concepts](#apiconcepts)
   * [OneAgentSDK object](#oneagentsdkobject)
+  * [Trace Context](#tracecontext)
   * [Tracers](#tracers)
   * [Service endpoints and communication endpoints](#endpoints)
 * [Features](#features)
@@ -74,9 +75,13 @@ You can create more than one object of this in your application. This ensures th
 
 ## Trace Context
 
-An instance of the `OneAgentSDK` provides access to the *Trace-Id* and *Span-Id* information
-of the current PurePath node. This information can then be used to provide e.g. additional
-context in log messages.
+An instance of the `OneAgentSDK` provides access to `TraceContextInfo` which holds information
+about the *Trace-Id* and *Span-Id* of the current PurePath node.
+This information can then be used to provide e.g. additional context in log messages.
+
+Please note that `TraceContextInfo` is not intended for tagging or context-propagation use cases.
+Dedicated APIs (e.g. [remote calls](#remoting) or [web requests](#webreqeusts)) as well as
+built-in OneAgent sensors take care of linking services correctly.
 
 ```Java
 TraceContextInfo traceContextInfo = oneAgentSDK.getTraceContextInfo();
