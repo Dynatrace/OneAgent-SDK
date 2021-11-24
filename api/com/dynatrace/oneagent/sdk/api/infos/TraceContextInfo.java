@@ -4,6 +4,8 @@ package com.dynatrace.oneagent.sdk.api.infos;
  * Provides information about the current PurePath node using the TraceContext
  * (Trace-Id, Span-Id) model as defined in https://www.w3.org/TR/trace-context.
  * The Span-Id represents the currently active PurePath node.
+ * This Trace-Id and Span-Id information is not intended for tagging and context-propagation
+ * scenarios and primarily designed for log-enrichment use cases.
  */
 public interface TraceContextInfo {
 	public static final String INVALID_TRACE_ID = "00000000000000000000000000000000";
