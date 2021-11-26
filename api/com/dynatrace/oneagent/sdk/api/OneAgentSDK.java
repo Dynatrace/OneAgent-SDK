@@ -241,11 +241,13 @@ public interface OneAgentSDK {
     void setLoggingCallback(LoggingCallback loggingCallback);
 
     /**
-     * Returns information about the current PurePath node using the TraceContext
-		 * (Trace-Id, Span-Id) model as defined in https://www.w3.org/TR/trace-context.
-		 * The returned information is not intended for tagging and context-propagation
-		 * scenarios and primarily designed for log-enrichment use cases.
-		 *  
+     * Provides TraceContext information about the PurePath node currently 
+     * active at the time of retrieval.
+     * It uses the TraceContext (Trace-Id, Span-Id) model as defined
+     * in https://www.w3.org/TR/trace-context.
+     * The returned information is not intended for tagging and context-propagation
+     * scenarios and primarily designed for log-enrichment use cases.
+     *
      * @return see {@link TraceContextInfo} for more details. Never returns null.
      */
     TraceContextInfo getTraceContextInfo();
