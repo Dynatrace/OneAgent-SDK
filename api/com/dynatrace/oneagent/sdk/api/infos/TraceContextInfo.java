@@ -1,7 +1,7 @@
 package com.dynatrace.oneagent.sdk.api.infos;
 
 /**
- * Provides information about the current PurePath node using the TraceContext
+ * Provides information about a current PurePath node using the TraceContext
  * (Trace-Id, Span-Id) model as defined in https://www.w3.org/TR/trace-context.
  * The Span-Id represents the currently active PurePath node.
  * This Trace-Id and Span-Id information is not intended for tagging and context-propagation
@@ -19,7 +19,7 @@ public interface TraceContextInfo {
 	boolean isValid();
 
 	/**
-	 * @return The Trace-Id represented as case-insensitive hex-encoded string
+	 * @return The Trace-Id represented lower-case, hex-encoded string
 	 * (see: https://tools.ietf.org/html/rfc4648#section-8).
 	 * {@link INVALID_TRACE_ID} in case of:
 	 * - No OneAgent is present.
@@ -29,7 +29,7 @@ public interface TraceContextInfo {
 	String getTraceId();
 
 	/**
-	 * @return The Span-Id represented as case-insensitive hex-encoded string
+	 * @return The Span-Id represented as lower-case, hex-encoded string
 	 * (see: https://tools.ietf.org/html/rfc4648#section-8).
 	 * {@link INVALID_SPAN_ID} in case of:
 	 * - No OneAgent is present.
