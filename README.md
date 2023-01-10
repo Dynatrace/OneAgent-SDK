@@ -41,6 +41,9 @@ In order to use the Dynatrace OneAgent SDK you need to have access to the source
 
 OneAgent automatically detects that your application is instrumented with the OneAgent SDK and immediately begins monitoring it. A restart of the application is required following OneAgent installation on the host. For most languages the SDK does not contain much actual implementation as the real work is done by the Dynatrace OneAgent itself. The SDK just acts as an API to the OneAgent.
 
+> Note: The OneAgent SDK is not supported on serverless code modules, including those for AWS Lambda.
+> Consider using [OpenTelemetry](https://www.dynatrace.com/support/help/shortlink/opentel-lambda) instead in these scenarios.
+
 <a name="languagesdks"></a>
 
 ## Language specific SDKs
@@ -53,7 +56,7 @@ The language specific SDKs are open source and published directly to GitHub, tog
 * [OneAgent SDK for Python](https://github.com/Dynatrace/OneAgent-SDK-for-Python)
 * [OneAgent SDK for .NET](https://github.com/Dynatrace/OneAgent-SDK-for-dotnet)
 
-The API is available in Java language for reference purposes. See [api folder](https://github.com/Dynatrace/OneAgent-SDK/blob/master/api).
+The [Java API contained in this repository](https://github.com/Dynatrace/OneAgent-SDK/blob/master/api) is for design reference only. The actual Java API is available in the [OneAgent SDK for Java](https://github.com/Dynatrace/OneAgent-SDK-for-Java).
 
 <a name="apiconcepts"></a>
 
